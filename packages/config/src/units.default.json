@@ -24,6 +24,10 @@
       {
         "locale": "it",
         "name": "cl"
+      },
+      {
+        "locale": "fr",
+        "name": "cl"
       }
     ],
     "plural": [
@@ -50,6 +54,10 @@
       {
         "locale": "it",
         "name": "cl"
+      },
+      {
+        "locale": "fr",
+        "name": "centilitres"
       }
     ],
     "alternates": [
@@ -59,7 +67,9 @@
       "cl.",
       "센티리터",
       "centilitro",
-      "centilitri"
+      "centilitri",
+      "centilitre",
+      "centilitres"
     ]
   },
   "deciliter": {
@@ -87,6 +97,10 @@
       {
         "locale": "it",
         "name": "dl"
+      },
+      {
+        "locale": "fr",
+        "name": "dl"
       }
     ],
     "plural": [
@@ -113,6 +127,10 @@
       {
         "locale": "it",
         "name": "dl"
+      },
+      {
+        "locale": "fr",
+        "name": "décilitres"
       }
     ],
     "alternates": [
@@ -122,7 +140,9 @@
       "dl.",
       "데시리터",
       "decilitro",
-      "decilitri"
+      "decilitri",
+      "décilitre",
+      "décilitres"
     ]
   },
   "gram": {
@@ -150,6 +170,10 @@
       {
         "locale": "it",
         "name": "g"
+      },
+      {
+        "locale": "fr",
+        "name": "g"
       }
     ],
     "plural": [
@@ -176,6 +200,10 @@
       {
         "locale": "it",
         "name": "g"
+      },
+      {
+        "locale": "fr",
+        "name": "grammes"
       }
     ],
     "alternates": [
@@ -189,7 +217,9 @@
       "그램",
       "그람",
       "grammo",
-      "grammi"
+      "grammi",
+      "gramme",
+      "grammes"
     ]
   },
   "teaspoon": {
@@ -217,6 +247,10 @@
       {
         "locale": "it",
         "name": "cucchiaino"
+      },
+      {
+        "locale": "fr",
+        "name": "càc"
       }
     ],
     "plural": [
@@ -243,6 +277,10 @@
       {
         "locale": "it",
         "name": "cucchiaini"
+      },
+      {
+        "locale": "fr",
+        "name": "cuillères à café"
       }
     ],
     "alternates": [
@@ -265,7 +303,10 @@
       "teskefulde",
       "cucchiaino",
       "cucchiaini",
-      "cc"
+      "cc",
+      "cuillère à café",
+      "cuillères à café",
+      "càc"
     ]
   },
   "tablespoon": {
@@ -293,6 +334,10 @@
       {
         "locale": "it",
         "name": "cucchiaio"
+      },
+      {
+        "locale": "fr",
+        "name": "càs"
       }
     ],
     "plural": [
@@ -319,6 +364,10 @@
       {
         "locale": "it",
         "name": "cucchiai"
+      },
+      {
+        "locale": "fr",
+        "name": "cuillères à soupe"
       }
     ],
     "alternates": [
@@ -338,7 +387,10 @@
       "spiseskefulde",
       "cucchiaio",
       "cucchiai",
-      "cucchiaiate"
+      "cucchiaiate",
+      "cuillère à soupe",
+      "cuillères à soupe",
+      "càs"
     ]
   },
   "knife_tip": {
@@ -435,6 +487,10 @@
       {
         "locale": "it",
         "name": "pizzico"
+      },
+      {
+        "locale": "fr",
+        "name": "pincée"
       }
     ],
     "plural": [
@@ -461,6 +517,10 @@
       {
         "locale": "it",
         "name": "pizzichi"
+      },
+      {
+        "locale": "fr",
+        "name": "pincées"
       }
     ],
     "alternates": [
@@ -481,7 +541,9 @@
       "drys",
       "pizzico",
       "pizzichi",
-      "un pizzico"
+      "un pizzico",
+      "pincée",
+      "pincées"
     ]
   },
   "piece": {
@@ -657,6 +719,10 @@
       {
         "locale": "it",
         "name": "foglia"
+      },
+      {
+        "locale": "fr",
+        "name": "feuille"
       }
     ],
     "plural": [
@@ -683,6 +749,10 @@
       {
         "locale": "it",
         "name": "foglie"
+      },
+      {
+        "locale": "fr",
+        "name": "feuilles"
       }
     ],
     "alternates": [
@@ -697,7 +767,9 @@
       "foglia",
       "foglie",
       "foglietta",
-      "foglioline"
+      "foglioline",
+      "feuille",
+      "feuilles"
     ]
   },
   "sprig": {
@@ -936,6 +1008,10 @@
       {
         "locale": "it",
         "name": "conf."
+      },
+      {
+        "locale": "fr",
+        "name": "paquet"
       }
     ],
     "plural": [
@@ -962,6 +1038,10 @@
       {
         "locale": "it",
         "name": "conf."
+      },
+      {
+        "locale": "fr",
+        "name": "paquets"
       }
     ],
     "alternates": [
@@ -989,7 +1069,9 @@
       "confezione",
       "confezioni",
       "conf",
-      "conf."
+      "conf.",
+      "paquet",
+      "paquets"
     ]
   },
   "can": {
@@ -1168,6 +1250,10 @@
       {
         "locale": "it",
         "name": "bottiglia"
+      },
+      {
+        "locale": "fr",
+        "name": "bouteille"
       }
     ],
     "plural": [
@@ -1194,6 +1280,10 @@
       {
         "locale": "it",
         "name": "bottiglie"
+      },
+      {
+        "locale": "fr",
+        "name": "bouteilles"
       }
     ],
     "alternates": [
@@ -1212,7 +1302,9 @@
       "fläschchen",
       "병",
       "bottiglia",
-      "bottiglie"
+      "bottiglie",
+      "bouteille",
+      "bouteilles"
     ]
   },
   "bag": {
@@ -1315,6 +1407,10 @@
       {
         "locale": "it",
         "name": "scatola"
+      },
+      {
+        "locale": "fr",
+        "name": "boîte"
       }
     ],
     "plural": [
@@ -1341,6 +1437,10 @@
       {
         "locale": "it",
         "name": "scatole"
+      },
+      {
+        "locale": "fr",
+        "name": "boîtes"
       }
     ],
     "alternates": [
@@ -1354,7 +1454,9 @@
       "박스",
       "상자",
       "scatola",
-      "scatole"
+      "scatole",
+      "boîte",
+      "boîtes"
     ]
   },
   "handful": {
@@ -1525,6 +1627,10 @@
       {
         "locale": "it",
         "name": "tazza"
+      },
+      {
+        "locale": "fr",
+        "name": "tasse"
       }
     ],
     "plural": [
@@ -1551,6 +1657,10 @@
       {
         "locale": "it",
         "name": "tazze"
+      },
+      {
+        "locale": "fr",
+        "name": "tasses"
       }
     ],
     "alternates": [
@@ -1577,7 +1687,9 @@
       "tazza",
       "tazze",
       "tazzina",
-      "tazzine"
+      "tazzine",
+      "tasse",
+      "tasses"
     ]
   },
   "glass": {
@@ -1605,6 +1717,10 @@
       {
         "locale": "it",
         "name": "bicchiere"
+      },
+      {
+        "locale": "fr",
+        "name": "verre"
       }
     ],
     "plural": [
@@ -1631,6 +1747,10 @@
       {
         "locale": "it",
         "name": "bicchieri"
+      },
+      {
+        "locale": "fr",
+        "name": "verres"
       }
     ],
     "alternates": [
@@ -1645,7 +1765,9 @@
       "잔",
       "컵",
       "bicchiere",
-      "bicchieri"
+      "bicchieri",
+      "verre",
+      "verres"
     ]
   },
   "slice": {
@@ -1673,6 +1795,10 @@
       {
         "locale": "it",
         "name": "fetta"
+      },
+      {
+        "locale": "fr",
+        "name": "tranche"
       }
     ],
     "plural": [
@@ -1699,6 +1825,10 @@
       {
         "locale": "it",
         "name": "fette"
+      },
+      {
+        "locale": "fr",
+        "name": "tranches"
       }
     ],
     "alternates": [
@@ -1715,7 +1845,9 @@
       "조각",
       "슬라이스",
       "fetta",
-      "fette"
+      "fette",
+      "tranche",
+      "tranches"
     ]
   },
   "strip": {
@@ -1810,6 +1942,10 @@
       {
         "locale": "it",
         "name": "foglio"
+      },
+      {
+        "locale": "fr",
+        "name": "feuille"
       }
     ],
     "plural": [
@@ -1836,6 +1972,10 @@
       {
         "locale": "it",
         "name": "fogli"
+      },
+      {
+        "locale": "fr",
+        "name": "feuilles"
       }
     ],
     "alternates": [
@@ -1845,7 +1985,9 @@
       "velletjes",
       "장",
       "foglio",
-      "fogli"
+      "fogli",
+      "feuille",
+      "feuilles"
     ]
   },
   "serving": {
@@ -4174,6 +4316,10 @@
       {
         "locale": "it",
         "name": "ml"
+      },
+      {
+        "locale": "fr",
+        "name": "ml"
       }
     ],
     "plural": [
@@ -4200,6 +4346,10 @@
       {
         "locale": "it",
         "name": "ml"
+      },
+      {
+        "locale": "fr",
+        "name": "millilitres"
       }
     ],
     "alternates": [
@@ -4240,6 +4390,10 @@
       {
         "locale": "it",
         "name": "l"
+      },
+      {
+        "locale": "fr",
+        "name": "l"
       }
     ],
     "plural": [
@@ -4266,6 +4420,10 @@
       {
         "locale": "it",
         "name": "l"
+      },
+      {
+        "locale": "fr",
+        "name": "litres"
       }
     ],
     "alternates": [
@@ -4306,6 +4464,10 @@
       {
         "locale": "it",
         "name": "cm"
+      },
+      {
+        "locale": "fr",
+        "name": "cm"
       }
     ],
     "plural": [
@@ -4332,6 +4494,10 @@
       {
         "locale": "it",
         "name": "cm"
+      },
+      {
+        "locale": "fr",
+        "name": "centimètres"
       }
     ],
     "alternates": [
@@ -4342,7 +4508,9 @@
       "센치",
       "센치미터",
       "centimetro",
-      "centimetri"
+      "centimetri",
+      "centimètre",
+      "centimètres"
     ]
   }
 }
