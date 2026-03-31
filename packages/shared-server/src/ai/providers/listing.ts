@@ -74,7 +74,13 @@ async function fetchModelsRaw(options: FetchModelsOptions): Promise<RawModel[]> 
 
     const data = await response.json();
 
-    return data[dataPath] || [];
+    if (!data || typeof data !== "object") {
+      return [];
+    }
+
+    const models = (data as Record<string, unknown>)[dataPath];
+
+    return Array.isArray(models) ? (models as RawModel[]) : [];
   } catch (error) {
     aiLogger.debug({ err: error, provider }, `Failed to list ${provider} models`);
 

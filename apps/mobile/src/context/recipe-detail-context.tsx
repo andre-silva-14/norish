@@ -1,4 +1,3 @@
-import { useMutation } from '@tanstack/react-query';
 import { TRPCClientError } from '@trpc/client';
 
 import { createRecipeDetailContext } from '@norish/shared-react/hooks';
@@ -10,6 +9,7 @@ import {
   useAutoCategorizationMutation,
   useAutoTagging,
   useAutoTaggingMutation,
+  useConvertMutation,
   useFavoritesMutation,
   useNutritionMutation,
   useNutritionQuery,
@@ -20,7 +20,6 @@ import {
 import { useRatingQuery, useRatingsMutation } from '@/hooks/ratings';
 import { useActiveAllergies } from '@/hooks/user';
 import { useRecipesContext } from '@/context/recipes-context';
-import { useTRPC } from '@/providers/trpc-provider';
 
 const {
   RecipeDetailProvider,
@@ -39,12 +38,7 @@ const {
   useAllergyDetectionMutation,
   useAllergyDetection,
   useActiveAllergies,
-  useConvertMutation: () => {
-     
-    const trpc = useTRPC();
-     
-    return useMutation(trpc.recipes.convertMeasurements.mutationOptions());
-  },
+  useConvertMutation,
   useRatingQuery,
   useRatingsMutation,
   useFavoriteIds: () => {
@@ -58,4 +52,3 @@ const {
 });
 
 export { RecipeDetailProvider, useRecipeContext, useRecipeContextRequired };
-

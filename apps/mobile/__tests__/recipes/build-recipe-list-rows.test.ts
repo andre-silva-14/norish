@@ -23,6 +23,7 @@ describe('buildRecipeListRows', () => {
       recipes: [
         {
           id: 'recipe-1',
+          version: 1,
           ownerId: 'owner-1',
           imageUrl: '',
           title: 'Recipe',

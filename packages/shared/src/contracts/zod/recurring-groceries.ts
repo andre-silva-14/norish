@@ -21,6 +21,7 @@ export const RecurringGroceryInsertBaseSchema = createInsertSchema(recurringGroc
 
 export const RecurringGroceryUpdateBaseSchema = z.object({
   id: z.uuid(),
+  version: z.number().int().positive().optional(),
   name: z.string().optional(),
   unit: z.string().nullable().optional(),
   amount: z.coerce.number().nullable().optional(),

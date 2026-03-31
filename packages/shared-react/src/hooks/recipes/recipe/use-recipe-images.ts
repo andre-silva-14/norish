@@ -28,7 +28,8 @@ export function createUseRecipeImages({ useTRPC }: CreateRecipeHooksOptions) {
       uploadGalleryImageData: (
         input: Parameters<typeof uploadGalleryImageMutation.mutateAsync>[0]
       ) => uploadGalleryImageMutation.mutateAsync(input),
-      deleteGalleryImage: (imageId: string) => deleteGalleryImageMutation.mutateAsync({ imageId }),
+      deleteGalleryImage: (imageId: string, version: number) =>
+        deleteGalleryImageMutation.mutateAsync({ imageId, version }),
       isUploadingImage: uploadImageMutation.isPending,
       isDeletingImage: deleteImageMutation.isPending,
       isUploadingStepImage: uploadStepImageMutation.isPending,

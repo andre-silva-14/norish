@@ -5,6 +5,12 @@ import type { CreateRecipeHooksOptions } from "../types";
 import { useCallback, useMemo } from "react";
 import { useQueryClient } from "@tanstack/react-query";
 
+export const OPTIMISTIC_PENDING_RECIPE_PREFIX = "optimistic-pending-recipe:";
+
+function isOptimisticPendingRecipeId(recipeId: string): boolean {
+  return recipeId.startsWith(OPTIMISTIC_PENDING_RECIPE_PREFIX);
+}
+
 
 
 export type InfiniteRecipeData = InfiniteData<{
@@ -19,6 +25,8 @@ export type RecipesCacheHelpers = {
   ) => void;
   invalidate: () => void;
   addPendingRecipe: (id: string) => void;
+  replacePendingRecipe: (fromId: string, toId: string) => void;
+  replaceOldestOptimisticPendingRecipe: (recipeId: string) => void;
   removePendingRecipe: (id: string) => void;
   addAutoTaggingRecipe: (id: string) => void;
   removeAutoTaggingRecipe: (id: string) => void;
@@ -63,6 +71,50 @@ export function createUseRecipesCacheHelpers({ useTRPC }: CreateRecipeHooksOptio
           if (arr.some((p) => p.recipeId === recipeId)) return arr;
 
           return [...arr, { recipeId, url: "", addedAt: Date.now() }];
+        });
+      },
+      [queryClient, pendingKey]
+    );
+
+    const replacePendingRecipe = useCallback(
+      (fromId: string, toId: string) => {
+        queryClient.setQueryData<PendingRecipeDTO[]>(pendingKey, (prev) => {
+          const arr = prev ?? [];
+
+          if (fromId === toId) {
+            return arr;
+          }
+
+          const next = arr.map((pending) =>
+            pending.recipeId === fromId ? { ...pending, recipeId: toId } : pending
+          );
+
+          return next.filter(
+            (pending, index) => next.findIndex((item) => item.recipeId === pending.recipeId) === index
+          );
+        });
+      },
+      [queryClient, pendingKey]
+    );
+
+    const replaceOldestOptimisticPendingRecipe = useCallback(
+      (recipeId: string) => {
+        queryClient.setQueryData<PendingRecipeDTO[]>(pendingKey, (prev) => {
+          const arr = prev ?? [];
+
+          if (arr.some((pending) => pending.recipeId === recipeId)) {
+            return arr;
+          }
+
+          const optimisticPending = arr.find((pending) => isOptimisticPendingRecipeId(pending.recipeId));
+
+          if (!optimisticPending) {
+            return [...arr, { recipeId, url: "", addedAt: Date.now() }];
+          }
+
+          return arr.map((pending) =>
+            pending.recipeId === optimisticPending.recipeId ? { ...pending, recipeId } : pending
+          );
         });
       },
       [queryClient, pendingKey]
@@ -131,6 +183,8 @@ export function createUseRecipesCacheHelpers({ useTRPC }: CreateRecipeHooksOptio
       setAllRecipesData,
       invalidate,
       addPendingRecipe,
+      replacePendingRecipe,
+      replaceOldestOptimisticPendingRecipe,
       removePendingRecipe,
       addAutoTaggingRecipe,
       removeAutoTaggingRecipe,

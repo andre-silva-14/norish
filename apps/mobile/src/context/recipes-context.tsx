@@ -2,6 +2,7 @@ import Ionicons from '@expo/vector-icons/Ionicons';
 import { Toast, useThemeColor, useToast } from 'heroui-native';
 import { useRouter } from 'expo-router';
 import React, { createContext, useContext, useMemo } from 'react';
+import { useIntl } from 'react-intl';
 import { View } from 'react-native';
 
 import { useAuth } from '@/context/auth-context';
@@ -13,9 +14,11 @@ import {
   useRecipesQuery,
   useRecipesSubscription,
 } from '@/hooks/recipes';
+import { sharedDashboardRecipeHooks } from '@/hooks/recipes/shared-recipe-hooks';
 import { useUserAllergiesQuery } from '@/hooks/user';
 import { mapDashboardRecipeToCardItem } from '@/lib/recipes/map-dashboard-recipe-to-card-item';
 
+import { createIntlMessageTranslator } from '@norish/i18n';
 import {
   createRecipesContext,
   type SharedRecipesContextValue,
@@ -29,7 +32,9 @@ const sharedRecipesContext = createRecipesContext({
   useFavoritesMutation,
   useUserAllergiesQuery,
   useRecipesSubscription,
+  useRatingsSubscription: sharedDashboardRecipeHooks.useRatingsSubscription,
   useToastAdapter: () => {
+    const intl = useIntl();
     const { toast } = useToast();
     const [successColor, warningColor, dangerColor] = useThemeColor([
       'success',
@@ -90,6 +95,7 @@ const sharedRecipesContext = createRecipesContext({
           ),
         });
       },
+      translate: createIntlMessageTranslator((descriptor) => intl.formatMessage(descriptor)),
     };
   },
   useNavigationAdapter: () => {

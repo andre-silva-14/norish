@@ -1,3 +1,4 @@
+export * from "./shared";
 export * from "./recipes";
 export * from "./tags";
 export * from "./ingredients";

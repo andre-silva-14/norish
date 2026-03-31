@@ -1,5 +1,7 @@
 import { index, integer, pgTable, primaryKey, timestamp, uuid } from "drizzle-orm/pg-core";
 
+import { versionColumn } from "./shared";
+
 import { recipes } from "./recipes";
 import { tags } from "./tags";
 
@@ -14,6 +16,7 @@ export const recipeTags = pgTable(
       .references(() => tags.id, { onDelete: "no action" }),
     order: integer("order").notNull().default(0),
     createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+    ...versionColumn,
   },
   (t) => [
     primaryKey({ columns: [t.recipeId, t.tagId], name: "pk_recipe_tags" }),

@@ -115,7 +115,13 @@ export class CalDavClient {
     }
 
     // Fall back to first calendar
-    return calendars[0];
+    const firstCalendar = calendars[0];
+
+    if (!firstCalendar) {
+      throw new Error("No calendars found on the server");
+    }
+
+    return firstCalendar;
   }
 
   /**

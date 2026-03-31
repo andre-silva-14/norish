@@ -372,6 +372,7 @@ export const ServerConfigEntrySchema = z.object({
   valueEnc: z.string().nullable(),
   isSensitive: z.boolean(),
   updatedBy: z.uuid().nullable(),
+  version: z.number(),
   updatedAt: z.date(),
   createdAt: z.date(),
 });

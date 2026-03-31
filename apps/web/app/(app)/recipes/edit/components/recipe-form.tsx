@@ -83,6 +83,7 @@ export default function RecipeForm({ mode, initialData }: RecipeFormProps) {
           type: "image",
           src: img.image,
           order: img.order,
+          version: img.version,
         });
       });
     } else if (initialData?.image) {
@@ -100,6 +101,7 @@ export default function RecipeForm({ mode, initialData }: RecipeFormProps) {
           thumbnail: vid.thumbnail,
           duration: vid.duration,
           order: vid.order,
+          version: vid.version,
         });
       });
     }
@@ -137,6 +139,8 @@ export default function RecipeForm({ mode, initialData }: RecipeFormProps) {
       );
 
       const initIngredients: ParsedIngredient[] = filteredIngredients.map((ing) => ({
+        id: ing.id,
+        version: ing.version,
         ingredientName: ing.ingredientName,
         amount: ing.amount,
         unit: ing.unit,
@@ -155,6 +159,7 @@ export default function RecipeForm({ mode, initialData }: RecipeFormProps) {
         step: s.step,
         order: s.order,
         systemUsed: s.systemUsed,
+        version: s.version,
         images: s.images || [],
       }));
 
@@ -223,6 +228,7 @@ export default function RecipeForm({ mode, initialData }: RecipeFormProps) {
           id: img.id,
           image: img.src,
           order: img.order,
+          version: img.version,
         }));
 
       // Get primary image (first image by order) for legacy image field
@@ -238,6 +244,7 @@ export default function RecipeForm({ mode, initialData }: RecipeFormProps) {
           thumbnail: vid.thumbnail ?? null,
           duration: vid.duration ?? null,
           order: vid.order,
+          version: vid.version,
         }));
 
       const recipeData = {
@@ -258,6 +265,8 @@ export default function RecipeForm({ mode, initialData }: RecipeFormProps) {
         tags: tags.map((t) => ({ name: t })),
         categories,
         recipeIngredients: ingredients.map((ing, idx) => ({
+          id: ing.id,
+          version: ing.version,
           ingredientName: ing.ingredientName,
           ingredientId: null,
           amount: ing.amount,
@@ -269,6 +278,7 @@ export default function RecipeForm({ mode, initialData }: RecipeFormProps) {
           step: s.step,
           order: idx,
           systemUsed: s.systemUsed,
+          version: s.version,
           images: s.images || [],
         })),
         // Images array field
@@ -285,7 +295,10 @@ export default function RecipeForm({ mode, initialData }: RecipeFormProps) {
           throw err;
         }
       } else if (mode === "edit" && initialData) {
-        await updateRecipe(initialData.id, recipeData);
+        await updateRecipe(initialData.id, {
+          ...recipeData,
+          version: initialData.version,
+        });
       }
     } catch (err) {
       setErrors({ submit: (err as Error).message });

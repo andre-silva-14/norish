@@ -1,13 +1,13 @@
-import AsyncStorage from '@react-native-async-storage/async-storage';
 import { create } from 'zustand';
 import { createJSONStorage, persist } from 'zustand/middleware';
+
+import { storage } from '@/lib/storage/mmkv';
 
 import { createClientLogger } from '@norish/shared/lib/logger';
 
 import { endLiveActivity, startOrUpdateLiveActivity } from './timer-live-activity';
 import {
   dismissAllTimerNotifications,
-  requestNotificationPermissions,
   showTimerNotification,
 } from './timer-notifications';
 import type { Timer, TimerStatus } from './timer-types';
@@ -103,11 +103,11 @@ export const useTimerStore = create<TimerState>()(
           timers: state.timers.map((t) =>
             t.id === id
               ? {
-                  ...t,
-                  status: 'paused' as TimerStatus,
-                  remainingMs: t.originalDurationMs,
-                  lastTickAt: null,
-                }
+                ...t,
+                status: 'paused' as TimerStatus,
+                remainingMs: t.originalDurationMs,
+                lastTickAt: null,
+              }
               : t,
           ),
         }));
@@ -193,15 +193,14 @@ export const useTimerStore = create<TimerState>()(
     {
       name: 'norish-timers',
       storage: createJSONStorage(() => ({
-        getItem: async (key: string) => {
-          const value = await AsyncStorage.getItem(key);
-          return value ?? null;
+        getItem: (key: string) => {
+          return storage.getString(key) ?? null;
         },
-        setItem: async (key: string, value: string) => {
-          await AsyncStorage.setItem(key, value);
+        setItem: (key: string, value: string) => {
+          storage.set(key, value);
         },
-        removeItem: async (key: string) => {
-          await AsyncStorage.removeItem(key);
+        removeItem: (key: string) => {
+          storage.delete(key);
         },
       })),
     },

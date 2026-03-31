@@ -54,7 +54,7 @@ export function createDashboardRecipeHooks(
     useAllergyDetectionQuery: dependencies.useAllergyDetectionQuery,
   });
   const useRecipesMutations = createUseRecipesMutations(options, {
-    useRecipesQuery,
+    useRecipesCacheHelpers,
   });
   const useRecipesSubscription = createUseRecipesSubscription(options, {
     useRecipesCacheHelpers,

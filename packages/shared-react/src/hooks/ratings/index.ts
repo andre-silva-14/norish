@@ -10,10 +10,12 @@ export type { CreateRatingsHooksOptions } from "./types";
 export { createUseRatingQuery } from "./use-ratings-query";
 export { createUseRatingsMutation } from "./use-ratings-mutation";
 
-export function createRatingsHooks({ useTRPC }: CreateRatingsHooksOptions) {
+export function createRatingsHooks(options: CreateRatingsHooksOptions) {
+  const { useTRPC } = options;
+
   return {
     useRatingQuery: createUseRatingQuery({ useTRPC }),
-    useRatingsMutation: createUseRatingsMutation({ useTRPC }),
+    useRatingsMutation: createUseRatingsMutation(options),
     useRatingsSubscription: createUseRatingsSubscription({ useTRPC }),
   };
 }

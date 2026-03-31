@@ -296,9 +296,10 @@ export async function extractTandoorRecipes(
       // Find image.* file (first match)
       const imageFiles = nestedZip.file(/^image\./i);
       let imageBuffer: Buffer | undefined = undefined;
+      const firstImageFile = imageFiles[0];
 
-      if (imageFiles.length > 0) {
-        const imageArrayBuffer = await imageFiles[0].async("arraybuffer");
+      if (firstImageFile) {
+        const imageArrayBuffer = await firstImageFile.async("arraybuffer");
 
         imageBuffer = Buffer.from(imageArrayBuffer);
       }

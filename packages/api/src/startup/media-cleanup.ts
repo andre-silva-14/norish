@@ -56,7 +56,12 @@ function registerRootMediaReference(
     return;
   }
 
-  const [, recipeId, filename] = match;
+  const recipeId = match[1];
+  const filename = match[2];
+
+  if (!recipeId || !filename) {
+    return;
+  }
 
   getReferenceSet(references, recipeId).add(filename);
 }
@@ -76,7 +81,12 @@ function registerStepImageReference(
     return;
   }
 
-  const [, recipeId, filename] = match;
+  const recipeId = match[1];
+  const filename = match[2];
+
+  if (!recipeId || !filename) {
+    return;
+  }
 
   getReferenceSet(references, recipeId).add(filename);
 }
@@ -221,7 +231,15 @@ export async function deleteImageByUrl(imageUrl: string | null | undefined): Pro
     return;
   }
 
-  const [, recipeId, filename] = match;
+  const recipeId = match[1];
+  const filename = match[2];
+
+  if (!recipeId || !filename) {
+    schedulerLogger.warn({ imageUrl }, "Invalid recipe media URL format");
+
+    return;
+  }
+
   const filePath = path.join(getRecipesDiskDir(), recipeId, filename);
 
   try {

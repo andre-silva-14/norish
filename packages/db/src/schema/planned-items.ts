@@ -1,5 +1,7 @@
 import { date, index, integer, pgEnum, pgTable, text, timestamp, uuid } from "drizzle-orm/pg-core";
 
+import { versionColumn } from "./shared";
+
 import { users } from "./auth";
 import { recipes } from "./recipes";
 
@@ -27,6 +29,7 @@ export const plannedItems = pgTable(
 
     createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
     updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
+    ...versionColumn,
   },
   (t) => [
     index("idx_planned_items_user_date").on(t.userId, t.date),

@@ -87,7 +87,9 @@ export default function SiteAuthTokensCard() {
 
   const handleDelete = async (tokenId: string) => {
     try {
-      await removeMutation.mutateAsync({ id: tokenId });
+      const tokenVersion = tokens.find((token) => token.id === tokenId)?.version ?? 1;
+
+      await removeMutation.mutateAsync({ id: tokenId, version: tokenVersion });
 
       queryClient.setQueryData(listQueryOptions.queryKey, (prev: typeof tokens | undefined) =>
         prev ? prev.filter((t) => t.id !== tokenId) : prev

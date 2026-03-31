@@ -284,6 +284,11 @@ export async function parseVideos(
   // Process videos sequentially to avoid overwhelming resources
   for (let i = 0; i < Math.min(candidates.length, maxVideos); i++) {
     const candidate = candidates[i];
+
+    if (!candidate) {
+      continue;
+    }
+
     const videoUrl = candidate.contentUrl || candidate.url;
 
     if (!videoUrl) continue;

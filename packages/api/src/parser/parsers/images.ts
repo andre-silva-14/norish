@@ -70,10 +70,10 @@ function parseSrcsetUrls(srcset: string): string[] {
   return srcset
     .split(",")
     .map((candidate) => candidate.trim().split(/\s+/)[0])
-    .filter((candidate) => candidate.length > 0);
+    .filter((candidate): candidate is string => typeof candidate === "string" && candidate.length > 0);
 }
 
-function collectRawSources($img: cheerio.Cheerio<cheerio.Element>): string[] {
+function collectRawSources($img: cheerio.Cheerio<any>): string[] {
   const collected: string[] = [];
 
   for (const attribute of IMAGE_ATTRIBUTES) {

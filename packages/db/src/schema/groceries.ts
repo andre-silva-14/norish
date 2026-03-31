@@ -9,6 +9,8 @@ import {
   uuid,
 } from "drizzle-orm/pg-core";
 
+import { versionColumn } from "./shared";
+
 import { users } from "./auth";
 import { recipeIngredients } from "./recipe-ingredients";
 import { recurringGroceries } from "./recurring-groceries";
@@ -37,6 +39,7 @@ export const groceries = pgTable(
     sortOrder: integer("sort_order").notNull().default(0),
     createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
     updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
+    ...versionColumn,
   },
   (t) => [
     index("idx_groceries_user_id").on(t.userId),

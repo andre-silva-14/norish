@@ -21,17 +21,16 @@ function formatTime(totalSeconds: number): string {
   return `${m}:${s.toString().padStart(2, '0')}`;
 }
 
-const TimerActivity = (props?: TimerActivityProps) => {
+const TimerActivity = (props: TimerActivityProps) => {
   'widget';
 
-  const safeProps = props ?? { timerLabel: 'Timer', remainingSeconds: 0, status: 'paused', timerCount: 0 };
-  const timeDisplay = formatTime(safeProps.remainingSeconds);
-  const isCompleted = safeProps.status === 'completed';
+  const timeDisplay = formatTime(props.remainingSeconds);
+  const isCompleted = props.status === 'completed';
   const statusColor = isCompleted ? '#FF3B30' : '#007AFF';
   const statusText = isCompleted
     ? 'Timer Complete!'
-    : safeProps.timerCount > 1
-      ? `${safeProps.timerCount} timers active`
+    : props.timerCount > 1
+      ? `${props.timerCount} timers active`
       : 'Timer Running';
 
   return {
@@ -44,8 +43,8 @@ const TimerActivity = (props?: TimerActivityProps) => {
         <Text modifiers={[font({ weight: 'bold', size: 32, design: 'monospaced' }), foregroundStyle('#FFFFFF')]}>
           {timeDisplay}
         </Text>
-        <Text modifiers={[font({ size: 13 }), foregroundStyle('#EBEBF5')]}>
-                    {safeProps.timerLabel}
+        <Text modifiers={[font({ size: 13 }), foregroundStyle('#EBEBF5')]}> 
+          {props.timerLabel}
         </Text>
       </VStack>
     ),
@@ -96,8 +95,8 @@ const TimerActivity = (props?: TimerActivityProps) => {
     // Expanded bottom
     expandedBottom: (
       <VStack modifiers={[padding({ horizontal: 16, bottom: 12 })]}>
-        <Text modifiers={[font({ size: 13 }), foregroundStyle('#EBEBF5')]}>
-                    {safeProps.timerLabel}
+        <Text modifiers={[font({ size: 13 }), foregroundStyle('#EBEBF5')]}> 
+          {props.timerLabel}
         </Text>
       </VStack>
     ),

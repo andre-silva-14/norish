@@ -84,6 +84,10 @@ async function processImageImportJob(job: Job<ImageImportJobData>): Promise<void
   if (files.length > 0) {
     const firstFile = files[0];
 
+    if (!firstFile) {
+      return;
+    }
+
     try {
       const imageBytes = Buffer.from(firstFile.data, "base64");
       const imagePath = await saveImageBytes(imageBytes, recipeId);

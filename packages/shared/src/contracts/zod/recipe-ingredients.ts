@@ -38,6 +38,8 @@ export const RecipeIngredientInputBaseSchema = RecipeIngredientsInsertBaseSchema
   recipeId: true,
   systemUsed: true,
 }).extend({
+  id: z.uuid().optional(),
+  version: z.number().int().positive().optional(),
   amount: z.coerce.number().nullable(),
   ingredientName: z.string().trim().min(1).optional(),
   ingredientId: z.string().nullable(),

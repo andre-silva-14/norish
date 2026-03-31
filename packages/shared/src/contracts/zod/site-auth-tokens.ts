@@ -24,6 +24,7 @@ export const CreateSiteAuthTokenInputSchema = z.object({
 // Input for updating a token
 export const UpdateSiteAuthTokenInputSchema = z.object({
   id: z.uuid(),
+  version: z.number().int().positive(),
   domain: z
     .string()
     .min(1)
@@ -37,6 +38,7 @@ export const UpdateSiteAuthTokenInputSchema = z.object({
 // Input for deleting a token
 export const DeleteSiteAuthTokenInputSchema = z.object({
   id: z.uuid(),
+  version: z.number().int().positive(),
 });
 
 // Decrypted token for client display (value is never sent back)
@@ -47,6 +49,7 @@ export const SiteAuthTokenDecryptedSchema = z.object({
   name: z.string(),
   value: z.string(),
   type: z.enum(["header", "cookie"]),
+  version: z.number(),
   createdAt: z.date(),
   updatedAt: z.date(),
 });
@@ -58,6 +61,7 @@ export const SiteAuthTokenSafeSchema = z.object({
   domain: z.string(),
   name: z.string(),
   type: z.enum(["header", "cookie"]),
+  version: z.number(),
   createdAt: z.date(),
   updatedAt: z.date(),
 });

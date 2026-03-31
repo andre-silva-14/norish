@@ -2,6 +2,8 @@
 import { initTRPC } from "@trpc/server";
 import superjson from "superjson";
 import { beforeEach, describe, expect, it, vi } from "vitest";
+import { trpcLogger } from "@norish/shared-server/logger";
+import { groceriesProcedures } from "@norish/trpc/routers/groceries/groceries";
 
 // Import mocks for assertions
 import {
@@ -33,6 +35,10 @@ vi.mock("@norish/auth/permissions", () => import("../mocks/permissions"));
 vi.mock("@norish/trpc/routers/groceries/emitter", () => import("../mocks/grocery-emitter"));
 vi.mock("@norish/config/server-config-loader", () => import("../mocks/config"));
 vi.mock("@norish/shared/lib/helpers", () => import("../mocks/helpers"));
+vi.mock("@norish/shared-server/logger", () => ({
+  trpcLogger: { debug: vi.fn(), info: vi.fn(), warn: vi.fn(), error: vi.fn() },
+  createLogger: () => ({ debug: vi.fn(), info: vi.fn(), warn: vi.fn(), error: vi.fn() }),
+}));
 
 // Create a test tRPC instance
 const t = initTRPC.context<ReturnType<typeof createMockAuthedContext>>().create({
@@ -238,5 +244,41 @@ describe("toggle procedure logic", () => {
     }));
 
     expect(updatedGroceries.every((g: { isDone: boolean }) => g.isDone)).toBe(true);
+  });
+});
+
+describe("stale grocery updates", () => {
+  const mockUser = createMockUser();
+  const mockHousehold = createMockHousehold();
+  let ctx: ReturnType<typeof createMockAuthedContext>;
+
+  beforeEach(() => {
+    vi.clearAllMocks();
+    ctx = createMockAuthedContext(mockUser, mockHousehold);
+  });
+
+  it("logs stale grocery row updates as no-ops", async () => {
+    const groceryId = crypto.randomUUID();
+
+    getGroceryOwnerIds.mockResolvedValue(new Map([[groceryId, ctx.user.id]]));
+    assertHouseholdAccess.mockResolvedValue(undefined);
+    updateGroceries.mockResolvedValue([]);
+
+    const caller = groceriesProcedures.createCaller({ ...ctx, multiplexer: null } as any);
+    const result = await caller.update({ groceryId, raw: "Oat milk", version: 4 });
+
+    await Promise.resolve();
+    await Promise.resolve();
+
+    expect(result).toEqual({ success: true });
+    expect(trpcLogger.info).toHaveBeenCalledWith(
+      { userId: ctx.user.id, groceryId, version: 4 },
+      "Ignoring stale grocery update mutation"
+    );
+    expect(groceryEmitter.emitToHousehold).not.toHaveBeenCalledWith(
+      ctx.householdKey,
+      "updated",
+      expect.anything()
+    );
   });
 });

@@ -18,6 +18,7 @@ import { useTranslations } from "next-intl";
 
 import { DeleteStoreModal } from "./delete-store-modal";
 
+import { useGroceriesQuery } from "@/hooks/groceries";
 import { useStoresMutations } from "@/hooks/stores";
 import Panel, { PANEL_HEIGHT_LARGE } from "@/components/Panel/Panel";
 import { getStoreColorClasses, STORE_COLOR_OPTIONS } from "@/components/groceries/store-colors";
@@ -38,6 +39,7 @@ type EditingStore = {
 
 export function StoreManagerPanel({ open, onOpenChange, stores }: StoreManagerPanelProps) {
   const { createStore, updateStore, deleteStore, reorderStores } = useStoresMutations();
+  const { groceries } = useGroceriesQuery();
   const t = useTranslations("groceries.storeManager");
   const tActions = useTranslations("common.actions");
 
@@ -98,7 +100,11 @@ export function StoreManagerPanel({ open, onOpenChange, stores }: StoreManagerPa
   };
 
   const handleDeleteConfirm = (storeId: string, deleteGroceries: boolean) => {
-    deleteStore(storeId, deleteGroceries);
+    const grocerySnapshot = groceries
+      .filter((grocery) => grocery.storeId === storeId)
+      .map((grocery) => ({ id: grocery.id, version: grocery.version }));
+
+    deleteStore(storeId, deleteGroceries, grocerySnapshot);
     setStoreToDelete(null);
   };
 

@@ -3,10 +3,15 @@ import React from 'react';
 import { Platform } from 'react-native';
 import { useIntl } from 'react-intl';
 
+import { OfflineBanner } from '@/components/shell/offline-banner';
 import { SettingsMenu } from '@/components/shell/settings-menu';
+import { useNetworkStatus } from '@/context/network-context';
 
 export default function RecipesLayout() {
   const intl = useIntl();
+  const { mode, runtimeState } = useNetworkStatus();
+
+  const showOfflineIndicator = runtimeState === 'ready' && mode !== 'online';
 
   return (
     <Stack
@@ -22,6 +27,7 @@ export default function RecipesLayout() {
         name="index"
         options={{
           title: intl.formatMessage({ id: 'recipes.dashboard.title' }),
+          headerLeft: showOfflineIndicator ? () => <OfflineBanner /> : undefined,
           headerRight: () => <SettingsMenu />,
         }}
       />

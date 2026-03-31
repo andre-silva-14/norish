@@ -2,6 +2,7 @@ import * as SecureStore from 'expo-secure-store';
 
 import { httpUrlSchema } from '@norish/shared/lib/schema';
 
+import { clearQueryCachesOnUrlChange } from '@/hooks/use-cache-lifecycle';
 import { resetAuthClientStorage } from '@/lib/auth-client';
 
 const BACKEND_BASE_URL_KEY = 'norish.backend-base-url';
@@ -73,6 +74,7 @@ export async function saveBackendBaseUrl(input: string): Promise<string> {
   const existing = await loadBackendBaseUrl();
 
   if (existing !== normalized) {
+    clearQueryCachesOnUrlChange();
     await resetAuthClientStorage();
   }
 

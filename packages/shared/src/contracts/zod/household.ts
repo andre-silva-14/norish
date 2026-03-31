@@ -27,6 +27,14 @@ export const HouseholdUserSchema = z.object({
   id: z.string(),
   name: z.string().nullable().optional(),
   isAdmin: z.boolean().optional(),
+  version: z.number(),
+});
+
+export const HouseholdEventUserSchema = z.object({
+  id: z.string(),
+  name: z.string().nullable(),
+  isAdmin: z.boolean(),
+  version: z.number().int().positive(),
 });
 
 export const HouseholdWithUsersNamesSchema = HouseholdSelectBaseSchema.extend({
@@ -54,4 +62,63 @@ export const HouseholdAdminSettingsSchema = HouseholdSelectBaseSchema.omit({
 }).extend({
   users: z.array(HouseholdUserSchema).default([]),
   allergies: z.array(z.string()).default([]),
+});
+
+export const LeaveHouseholdInputSchema = z.object({
+  householdId: z.string().uuid(),
+  version: z.number().int().positive(),
+});
+
+export const KickHouseholdUserInputSchema = z.object({
+  householdId: z.string().uuid(),
+  userId: z.string(),
+  version: z.number().int().positive(),
+});
+
+export const RegenerateHouseholdJoinCodeInputSchema = z.object({
+  householdId: z.string().uuid(),
+  version: z.number().int().positive(),
+});
+
+export const TransferHouseholdAdminInputSchema = z.object({
+  householdId: z.string().uuid(),
+  newAdminId: z.string(),
+  version: z.number().int().positive(),
+});
+
+export const HouseholdUserJoinedEventSchema = z.object({
+  user: HouseholdEventUserSchema,
+});
+
+export const HouseholdUserLeftEventSchema = z.object({
+  userId: z.string(),
+});
+
+export const HouseholdUserKickedEventSchema = z.object({
+  householdId: z.string(),
+  kickedBy: z.string(),
+});
+
+export const HouseholdMemberRemovedEventSchema = z.object({
+  userId: z.string(),
+});
+
+export const HouseholdAdminTransferredEventSchema = z.object({
+  oldAdminId: z.string(),
+  newAdminId: z.string(),
+  version: z.number().int().positive(),
+});
+
+export const HouseholdJoinCodeRegeneratedEventSchema = z.object({
+  joinCode: z.string(),
+  joinCodeExpiresAt: z.string(),
+  version: z.number().int().positive(),
+});
+
+export const HouseholdAllergiesUpdatedEventSchema = z.object({
+  allergies: z.array(z.string()),
+});
+
+export const HouseholdFailedEventSchema = z.object({
+  reason: z.string(),
 });

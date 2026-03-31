@@ -88,11 +88,11 @@ const deleteProvider = adminProcedure
   .mutation(async ({ input, ctx }) => {
     log.info({ userId: ctx.user.id, provider: input }, "Deleting auth provider");
 
-    const keyMap: Record<string, ServerConfigKey> = {
+    const keyMap = {
       oidc: ServerConfigKeys.AUTH_PROVIDER_OIDC,
       github: ServerConfigKeys.AUTH_PROVIDER_GITHUB,
       google: ServerConfigKeys.AUTH_PROVIDER_GOOGLE,
-    };
+    } satisfies Record<"oidc" | "github" | "google", ServerConfigKey>;
     const key = keyMap[input];
 
     // Check if this is the last configured auth method

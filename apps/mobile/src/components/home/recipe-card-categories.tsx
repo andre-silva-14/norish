@@ -11,7 +11,7 @@ type RecipeCardCategoriesProps = {
   chipBorder: string;
 };
 
-export function RecipeCardCategories({
+function RecipeCardCategoriesComponent({
   recipeId,
   categories,
   chipBackground,
@@ -37,3 +37,5 @@ export function RecipeCardCategories({
     </ScrollView>
   );
 }
+
+export const RecipeCardCategories = React.memo(RecipeCardCategoriesComponent);

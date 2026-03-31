@@ -7,6 +7,7 @@ export { useFavoritesMutation } from './use-favorites-mutation';
 // Recipe family hooks (single recipe)
 export { useRecipeQuery } from './use-recipe-query';
 export { useRecipeSubscription } from './use-recipe-subscription';
+export { useConvertMutation } from './use-convert-mutation';
 export { useNutritionQuery } from './use-nutrition-query';
 export { useNutritionMutation } from './use-nutrition-mutation';
 export { useNutritionSubscription } from './use-nutrition-subscription';

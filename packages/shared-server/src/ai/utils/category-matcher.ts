@@ -134,6 +134,8 @@ export function matchCategory(input: string): RecipeCategory | null {
 
   const bestMatch = results[0];
 
+  if (!bestMatch) return null;
+
   if (bestMatch.score !== undefined && bestMatch.score > FUZZY_THRESHOLD) {
     return null;
   }

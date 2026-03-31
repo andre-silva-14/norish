@@ -44,4 +44,5 @@ export type TrpcHookBinding = ReturnType<TrpcContext["useTRPC"]> & SubscriptionP
 
 export interface CreateRecipeHooksOptions {
   useTRPC: () => TrpcHookBinding;
+  shouldPreserveOptimisticUpdate?: (error: unknown) => boolean;
 }

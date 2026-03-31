@@ -1,5 +1,7 @@
 import { boolean, pgTable, text, timestamp } from "drizzle-orm/pg-core";
 
+import { versionColumn } from "./shared";
+
 import { users } from "./auth";
 
 export const userCaldavConfig = pgTable("user_caldav_config", {
@@ -18,4 +20,5 @@ export const userCaldavConfig = pgTable("user_caldav_config", {
   snackTime: text("snack_time").notNull().default("15:00-15:30"),
   createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
   updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
+  ...versionColumn,
 });

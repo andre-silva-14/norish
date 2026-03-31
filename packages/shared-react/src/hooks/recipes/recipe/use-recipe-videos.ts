@@ -18,7 +18,8 @@ export function createUseRecipeVideos({ useTRPC }: CreateRecipeHooksOptions) {
       uploadGalleryVideoData: (
         input: Parameters<typeof uploadGalleryVideoMutation.mutateAsync>[0]
       ) => uploadGalleryVideoMutation.mutateAsync(input),
-      deleteGalleryVideo: (videoId: string) => deleteGalleryVideoMutation.mutateAsync({ videoId }),
+      deleteGalleryVideo: (videoId: string, version: number) =>
+        deleteGalleryVideoMutation.mutateAsync({ videoId, version }),
       isUploadingGalleryVideo: uploadGalleryVideoMutation.isPending,
       isDeletingGalleryVideo: deleteGalleryVideoMutation.isPending,
     };

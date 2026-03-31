@@ -220,14 +220,16 @@ async function handleJobFailed(
  * Call during server startup.
  */
 export async function startRecipeImportWorker(): Promise<void> {
+  const rawProcessor = (job: Job<RecipeImportJobData>) =>
+    withTimeout(
+      () => processImportJob(job),
+      RECIPE_IMPORT_PROCESSING_TIMEOUT_MS,
+      "Recipe import job"
+    );
+
   await createLazyWorker<RecipeImportJobData>(
     QUEUE_NAMES.RECIPE_IMPORT,
-    (job) =>
-      withTimeout(
-        () => processImportJob(job),
-        RECIPE_IMPORT_PROCESSING_TIMEOUT_MS,
-        "Recipe import job"
-      ),
+    rawProcessor,
     {
       connection: getBullClient(),
       ...baseWorkerOptions,

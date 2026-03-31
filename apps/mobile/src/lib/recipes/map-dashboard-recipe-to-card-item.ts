@@ -1,19 +1,12 @@
 import type { RecipeDashboardDTO } from '@norish/shared/contracts';
 
 import type { RecipeCardItem } from './recipe-card.types';
+import { resolveImageUrl } from './resolve-image-url';
 
 type RecipeCardMappingOptions = {
   favoriteIds?: Set<string>;
   allergies?: string[];
 };
-
-function resolveRecipeImageUrl(image: string | null, backendBaseUrl: string | null): string {
-  if (!image) return '';
-  if (/^https?:\/\//i.test(image)) return image;
-  if (!backendBaseUrl) return image;
-
-  return `${backendBaseUrl.replace(/\/+$/, '')}/${image.replace(/^\/+/, '')}`;
-}
 
 export function mapDashboardRecipeToCardItem(
   recipe: RecipeDashboardDTO,
@@ -21,11 +14,13 @@ export function mapDashboardRecipeToCardItem(
   authCookie: string | null,
   options: RecipeCardMappingOptions = {},
 ): RecipeCardItem {
+  const imageSource = resolveImageUrl(recipe.image, backendBaseUrl, authCookie);
   return {
     id: recipe.id,
+    version: recipe.version,
     ownerId: recipe.userId,
-    imageUrl: resolveRecipeImageUrl(recipe.image, backendBaseUrl),
-    imageHeaders: authCookie ? { Cookie: authCookie } : undefined,
+    imageUrl: imageSource?.uri ?? '',
+    imageHeaders: imageSource?.headers,
     title: recipe.name,
     description: recipe.description ?? '',
     servings: recipe.servings,

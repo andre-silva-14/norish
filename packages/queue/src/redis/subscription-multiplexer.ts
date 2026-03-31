@@ -91,7 +91,9 @@ export class SubscriptionMultiplexer {
 
       queueMicrotask(() => {
         try {
-          this.emitter.emit(channel, superjson.parse(message));
+          const parsed = superjson.parse(message);
+
+          this.emitter.emit(channel, parsed);
         } catch (err) {
           log.error({ err, channel }, "Failed to parse multiplexed message");
         }

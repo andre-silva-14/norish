@@ -16,6 +16,11 @@ import {
   moveItem,
   updatePlannedItem,
 } from "@norish/db/repositories/planned-items";
+import {
+  PlannedItemDeleteInputSchema,
+  PlannedItemMoveInputSchema,
+  PlannedItemUpdateInputSchema,
+} from "@norish/shared/contracts/zod";
 import { trpcLogger as log } from "@norish/shared-server/logger";
 
 import { authedProcedure } from "../../middleware";
@@ -29,13 +34,6 @@ const itemTypeSchema = z.enum(["recipe", "note"]);
 const listItemsInput = z.object({
   startISO: z.string(),
   endISO: z.string(),
-});
-
-const moveItemInput = z.object({
-  itemId: z.string().uuid(),
-  targetDate: z.string(),
-  targetSlot: slotSchema,
-  targetIndex: z.number().int().min(0),
 });
 
 const createItemInput = z
@@ -53,15 +51,6 @@ const createItemInput = z
     message: "title is required for note items",
   });
 
-const deleteItemInput = z.object({
-  itemId: z.string().uuid(),
-});
-
-const updateItemInput = z.object({
-  itemId: z.string().uuid(),
-  title: z.string().min(1),
-});
-
 export const plannedItemsProcedures = router({
   listItems: authedProcedure.input(listItemsInput).query(async ({ ctx, input }) => {
     const { startISO, endISO } = input;
@@ -69,8 +58,8 @@ export const plannedItemsProcedures = router({
     return listPlannedItemsByUserAndDateRange(ctx.userIds, startISO, endISO);
   }),
 
-  moveItem: authedProcedure.input(moveItemInput).mutation(async ({ ctx, input }) => {
-    const { itemId, targetDate, targetSlot, targetIndex } = input;
+  moveItem: authedProcedure.input(PlannedItemMoveInputSchema).mutation(async ({ ctx, input }) => {
+    const { itemId, targetDate, targetSlot, targetIndex, version } = input;
 
     const item = await getPlannedItemById(itemId);
 
@@ -87,14 +76,14 @@ export const plannedItemsProcedures = router({
       return { success: true, moved: false };
     }
 
-    const movedItem = await moveItem(itemId, targetDate, targetSlot, targetIndex);
+    const moveResult = await moveItem(itemId, targetDate, targetSlot, targetIndex, version);
 
-    if (!movedItem) {
-      throw new TRPCError({
-        code: "INTERNAL_SERVER_ERROR",
-        message: "Failed to move item",
-      });
+    if (moveResult.stale) {
+      log.info({ userId: ctx.user.id, itemId, version }, "Ignoring stale calendar move mutation");
+      return { success: true, moved: false, stale: true };
     }
+
+    const movedItem = moveResult.value;
 
     const isCrossSlot = item.date !== targetDate || item.slot !== targetSlot;
 
@@ -141,6 +130,7 @@ export const plannedItemsProcedures = router({
       recipeId: movedItemWithRecipe.recipeId,
       title: movedItemWithRecipe.title,
       userId: movedItemWithRecipe.userId,
+      version: movedItemWithRecipe.version,
       recipeName: movedItemWithRecipe.recipeName,
       recipeImage: movedItemWithRecipe.recipeImage,
       servings: movedItemWithRecipe.servings,
@@ -156,7 +146,7 @@ export const plannedItemsProcedures = router({
       oldSortOrder: item.sortOrder,
     });
 
-    return { success: true, moved: true };
+    return { success: true, moved: true, stale: false };
   }),
 
   createItem: authedProcedure.input(createItemInput).mutation(async ({ ctx, input }) => {
@@ -182,6 +172,7 @@ export const plannedItemsProcedures = router({
       recipeId: newItem.recipeId,
       title: newItem.title,
       userId: newItem.userId,
+      version: newItem.version,
       recipeName: itemWithRecipe?.recipeName ?? null,
       recipeImage: itemWithRecipe?.recipeImage ?? null,
       servings: itemWithRecipe?.servings ?? null,
@@ -195,8 +186,8 @@ export const plannedItemsProcedures = router({
     return { id: newItem.id };
   }),
 
-  deleteItem: authedProcedure.input(deleteItemInput).mutation(async ({ ctx, input }) => {
-    const { itemId } = input;
+  deleteItem: authedProcedure.input(PlannedItemDeleteInputSchema).mutation(async ({ ctx, input }) => {
+    const { itemId, version } = input;
 
     const item = await getPlannedItemById(itemId);
 
@@ -209,7 +200,12 @@ export const plannedItemsProcedures = router({
 
     await assertHouseholdAccess(ctx.user.id, item.userId);
 
-    await deletePlannedItem(itemId);
+    const deleteResult = await deletePlannedItem(itemId, version);
+
+    if (deleteResult.stale) {
+      log.info({ userId: ctx.user.id, itemId, version }, "Ignoring stale calendar delete mutation");
+      return { success: true, stale: true };
+    }
 
     calendarEmitter.emitToHousehold(ctx.householdKey, "itemDeleted", {
       itemId,
@@ -217,11 +213,11 @@ export const plannedItemsProcedures = router({
       slot: item.slot,
     });
 
-    return { success: true };
+    return { success: true, stale: false };
   }),
 
-  updateItem: authedProcedure.input(updateItemInput).mutation(async ({ ctx, input }) => {
-    const { itemId, title } = input;
+  updateItem: authedProcedure.input(PlannedItemUpdateInputSchema).mutation(async ({ ctx, input }) => {
+    const { itemId, title, version } = input;
     const householdKey = ctx.householdKey;
     const userId = ctx.user.id;
 
@@ -236,44 +232,47 @@ export const plannedItemsProcedures = router({
 
     await assertHouseholdAccess(ctx.user.id, item.userId);
 
-    updatePlannedItem(itemId, { title })
-      .then(async (updatedItem) => {
-        if (!updatedItem) {
-          throw new Error("Failed to update item");
-        }
+    try {
+      const updateResult = await updatePlannedItem(itemId, { title }, version);
 
-        const itemWithRecipe = await getPlannedItemWithRecipeById(updatedItem.id);
+      if (updateResult.stale) {
+        log.info({ userId, itemId, version }, "Ignoring stale calendar update mutation");
+        return { success: true, stale: true };
+      }
 
-        if (!itemWithRecipe) {
-          throw new Error("Failed to fetch updated item");
-        }
+      const itemWithRecipe = await getPlannedItemWithRecipeById(updateResult.value.id);
 
-        const itemPayload: PlannedItemWithRecipePayload = {
-          id: itemWithRecipe.id,
-          date: itemWithRecipe.date,
-          slot: itemWithRecipe.slot,
-          sortOrder: itemWithRecipe.sortOrder,
-          itemType: itemWithRecipe.itemType,
-          recipeId: itemWithRecipe.recipeId,
-          title: itemWithRecipe.title,
-          userId: itemWithRecipe.userId,
-          recipeName: itemWithRecipe.recipeName,
-          recipeImage: itemWithRecipe.recipeImage,
-          servings: itemWithRecipe.servings,
-          calories: itemWithRecipe.calories,
-        };
+      if (!itemWithRecipe) {
+        throw new Error("Failed to fetch updated item");
+      }
 
-        calendarEmitter.emitToHousehold(householdKey, "itemUpdated", {
-          item: itemPayload,
-        });
-      })
-      .catch((err) => {
-        log.error({ err, userId, itemId }, "Failed to update calendar item");
-        calendarEmitter.emitToHousehold(householdKey, "failed", {
-          reason: "Failed to update item",
-        });
+      const itemPayload: PlannedItemWithRecipePayload = {
+        id: itemWithRecipe.id,
+        date: itemWithRecipe.date,
+        slot: itemWithRecipe.slot,
+        sortOrder: itemWithRecipe.sortOrder,
+        itemType: itemWithRecipe.itemType,
+        recipeId: itemWithRecipe.recipeId,
+        title: itemWithRecipe.title,
+        userId: itemWithRecipe.userId,
+        version: itemWithRecipe.version,
+        recipeName: itemWithRecipe.recipeName,
+        recipeImage: itemWithRecipe.recipeImage,
+        servings: itemWithRecipe.servings,
+        calories: itemWithRecipe.calories,
+      };
+
+      calendarEmitter.emitToHousehold(householdKey, "itemUpdated", {
+        item: itemPayload,
       });
 
-    return { success: true };
+      return { success: true, stale: false };
+    } catch (err) {
+      log.error({ err, userId, itemId }, "Failed to update calendar item");
+      calendarEmitter.emitToHousehold(householdKey, "failed", {
+        reason: "Failed to update item",
+      });
+      return { success: false };
+    }
   }),
 });

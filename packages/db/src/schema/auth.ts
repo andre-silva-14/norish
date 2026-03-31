@@ -12,6 +12,8 @@ import {
   uniqueIndex,
 } from "drizzle-orm/pg-core";
 
+import { versionColumn } from "./shared";
+
 // User table with encrypted PII fields
 export const users = pgTable(
   "user",
@@ -44,6 +46,7 @@ export const users = pgTable(
       .defaultNow()
       .$onUpdate(() => new Date())
       .notNull(),
+    ...versionColumn,
   },
   (t) => [
     uniqueIndex("user_email_hmac_idx").on(t.emailHmac),

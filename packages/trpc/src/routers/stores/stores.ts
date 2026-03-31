@@ -95,26 +95,29 @@ const update = authedProcedure.input(StoreUpdateInputSchema).mutation(async ({ c
     }
   }
 
-  updateStore(input)
-    .then((updatedStore) => {
-      if (updatedStore) {
-        log.info({ userId: ctx.user.id, storeId: updatedStore.id }, "Store updated");
-        storeEmitter.emitToHousehold(ctx.householdKey, "updated", {
-          store: updatedStore,
-        });
-      }
-    })
-    .catch((err) => {
-      log.error({ err, userId: ctx.user.id, storeId: input.id }, "Failed to update store");
+  try {
+    const updatedStore = await updateStore(input);
+
+    if (!updatedStore) {
+      log.info({ userId: ctx.user.id, storeId: input.id, version: input.version }, "Ignoring stale store update mutation");
+      return input.id;
+    }
+
+    log.info({ userId: ctx.user.id, storeId: updatedStore.id }, "Store updated");
+    storeEmitter.emitToHousehold(ctx.householdKey, "updated", {
+      store: updatedStore,
     });
+  } catch (err) {
+    log.error({ err, userId: ctx.user.id, storeId: input.id }, "Failed to update store");
+  }
 
   return input.id;
 });
 
 const remove = authedProcedure.input(StoreDeleteSchema).mutation(async ({ ctx, input }) => {
-  const { storeId, deleteGroceries } = input;
+  const { storeId, version, deleteGroceries, grocerySnapshot } = input;
 
-  log.info({ userId: ctx.user.id, storeId, deleteGroceries }, "Deleting store");
+  log.info({ userId: ctx.user.id, storeId, deleteGroceries, hasSnapshot: !!grocerySnapshot }, "Deleting store");
 
   // Check ownership
   const ownerId = await getStoreOwnerId(storeId);
@@ -124,18 +127,25 @@ const remove = authedProcedure.input(StoreDeleteSchema).mutation(async ({ ctx, i
   }
   await assertHouseholdAccess(ctx.user.id, ownerId);
 
-  deleteStore(storeId, deleteGroceries)
-    .then(({ deletedGroceryIds }) => {
+  deleteStore(storeId, version, deleteGroceries, grocerySnapshot)
+    .then(({ deletedGroceryIds, storeDeleted, stale }) => {
+      if (stale) {
+        log.info({ userId: ctx.user.id, storeId, version }, "Ignoring stale store delete mutation");
+        return;
+      }
+
       log.info(
-        { userId: ctx.user.id, storeId, deletedGroceryCount: deletedGroceryIds.length },
-        "Store deleted"
+        { userId: ctx.user.id, storeId, deletedGroceryCount: deletedGroceryIds.length, storeDeleted },
+        "Store delete processed"
       );
 
-      // Emit store deleted event
-      storeEmitter.emitToHousehold(ctx.householdKey, "deleted", {
-        storeId,
-        deletedGroceryIds,
-      });
+      if (storeDeleted) {
+        // Emit store deleted event
+        storeEmitter.emitToHousehold(ctx.householdKey, "deleted", {
+          storeId,
+          deletedGroceryIds,
+        });
+      }
 
       // If groceries were deleted, also emit grocery deleted event
       if (deletedGroceryIds.length > 0) {
@@ -152,20 +162,39 @@ const remove = authedProcedure.input(StoreDeleteSchema).mutation(async ({ ctx, i
 });
 
 const reorder = authedProcedure.input(StoreReorderSchema).mutation(async ({ ctx, input }) => {
-  log.debug({ userId: ctx.user.id, storeCount: input.storeIds.length }, "Reordering stores");
+  const storeUpdates = input.stores;
 
-  reorderStores(input.storeIds)
-    .then((reorderedStores) => {
+  log.debug({ userId: ctx.user.id, storeCount: storeUpdates.length }, "Reordering stores");
+
+  try {
+    const reorderedStores = await reorderStores(storeUpdates);
+
+    if (reorderedStores.length === 0) {
+      log.info({ userId: ctx.user.id, requestedStoreCount: storeUpdates.length }, "Ignoring stale store reorder mutation");
+      return storeUpdates.map((s) => s.id);
+    }
+
+    if (reorderedStores.length !== storeUpdates.length) {
+      log.info(
+        {
+          userId: ctx.user.id,
+          requestedStoreCount: storeUpdates.length,
+          appliedStoreCount: reorderedStores.length,
+        },
+        "Store reorder partially applied due to stale versions"
+      );
+    } else {
       log.info({ userId: ctx.user.id, storeCount: reorderedStores.length }, "Stores reordered");
-      storeEmitter.emitToHousehold(ctx.householdKey, "reordered", {
-        stores: reorderedStores,
-      });
-    })
-    .catch((err) => {
-      log.error({ err, userId: ctx.user.id }, "Failed to reorder stores");
-    });
+    }
 
-  return input.storeIds;
+    storeEmitter.emitToHousehold(ctx.householdKey, "reordered", {
+      stores: reorderedStores,
+    });
+  } catch (err) {
+    log.error({ err, userId: ctx.user.id }, "Failed to reorder stores");
+  }
+
+  return storeUpdates.map((s) => s.id);
 });
 
 const getGroceryCount = authedProcedure

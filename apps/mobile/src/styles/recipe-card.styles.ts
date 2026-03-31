@@ -8,11 +8,12 @@ export const styles = StyleSheet.create({
   imageFill: {
     ...StyleSheet.absoluteFillObject,
   },
-  heartPill: {
-    overflow: 'hidden',
-    borderRadius: 999,
-    width: 30,
-    height: 30,
+  heartOverlay: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
     alignItems: 'center',
     justifyContent: 'center',
   },
@@ -25,6 +26,17 @@ export const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: '600',
     lineHeight: 22,
+    flex: 1,
+  },
+  titleRow: {
+    flexDirection: 'row',
+    alignItems: 'flex-start',
+    gap: 12,
+  },
+  titleHeartBadge: {
+    minWidth: 28,
+    alignItems: 'flex-end',
+    paddingTop: 1,
   },
   description: {
     fontSize: 14,

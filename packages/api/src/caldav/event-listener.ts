@@ -143,6 +143,12 @@ async function startCalendarSubscriptions(signal: AbortSignal): Promise<void> {
       const parts = channel.split(":");
       const eventName = parts[parts.length - 1];
 
+      if (!eventName) {
+        log.warn({ channel }, "Ignoring calendar event with missing event name");
+
+        return;
+      }
+
       let data: unknown;
 
       try {

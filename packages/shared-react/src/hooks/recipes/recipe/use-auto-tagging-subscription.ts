@@ -15,7 +15,7 @@ export function createUseAutoTagging({ useTRPC }: CreateRecipeHooksOptions) {
     useSubscription(
       trpc.recipes.onAutoTaggingStarted.subscriptionOptions(undefined, {
         enabled: !!recipeId,
-        onData: (payload: any) => {
+        onData: ({ payload }: any) => {
           if (payload.recipeId === recipeId) {
             onStarted();
           }
@@ -26,7 +26,7 @@ export function createUseAutoTagging({ useTRPC }: CreateRecipeHooksOptions) {
     useSubscription(
       trpc.recipes.onFailed.subscriptionOptions(undefined, {
         enabled: !!recipeId,
-        onData: (payload: any) => {
+        onData: ({ payload }: any) => {
           if (payload.recipeId === recipeId) {
             onCompleted();
           }
@@ -37,7 +37,7 @@ export function createUseAutoTagging({ useTRPC }: CreateRecipeHooksOptions) {
     useSubscription(
       trpc.recipes.onUpdated.subscriptionOptions(undefined, {
         enabled: !!recipeId,
-        onData: (payload: any) => {
+        onData: ({ payload }: any) => {
           if (payload.recipe.id === recipeId) {
             onCompleted();
           }

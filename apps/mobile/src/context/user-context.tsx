@@ -29,6 +29,7 @@ const shared = createUserContext({
           email: user.email,
           name: user.name,
           image: user.image ?? null,
+          version: 1,
         }
       : null;
 

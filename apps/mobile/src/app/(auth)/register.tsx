@@ -15,7 +15,7 @@ const MAX_PASSWORD_LENGTH = 128;
 export default function RegisterScreen() {
   const router = useRouter();
   const intl = useIntl();
-  const { backendBaseUrl, authClient } = useAuth();
+  const { backendBaseUrl, authClient, consumeLogoutFlag } = useAuth();
 
   const [foregroundColor, mutedColor, accentColor, dangerColor] = useThemeColor([
     'foreground',
@@ -44,8 +44,8 @@ export default function RegisterScreen() {
 
   return (
     <RegisterForm
-      backendBaseUrl={backendBaseUrl}
       authClient={authClient}
+      consumeLogoutFlag={consumeLogoutFlag}
       foregroundColor={foregroundColor}
       mutedColor={mutedColor}
       accentColor={accentColor}
@@ -55,15 +55,15 @@ export default function RegisterScreen() {
 }
 
 function RegisterForm({
-  backendBaseUrl,
   authClient,
+  consumeLogoutFlag,
   foregroundColor,
   mutedColor,
   accentColor,
   dangerColor,
 }: {
-  backendBaseUrl: string;
   authClient: ReturnType<typeof import('@/lib/auth-client').getAuthClient> | null;
+  consumeLogoutFlag: () => void;
   foregroundColor: string;
   mutedColor: string;
   accentColor: string;
@@ -127,6 +127,7 @@ function RegisterForm({
         return;
       }
 
+      consumeLogoutFlag();
       // BetterAuth autoSignIn is enabled, so the session is established
       // automatically. Stack.Protected guard handles the redirect to (tabs).
     } catch (error) {
@@ -138,7 +139,7 @@ function RegisterForm({
     } finally {
       setIsSubmitting(false);
     }
-  }, [authClient, confirmPassword, email, intl, name, password]);
+  }, [authClient, confirmPassword, consumeLogoutFlag, email, intl, name, password]);
 
   const signInLink = (
     <Pressable onPress={() => router.replace('/login' as any)} style={styles.linkRow}>

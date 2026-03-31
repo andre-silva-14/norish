@@ -14,8 +14,15 @@ export type RecipeImagesResult = {
     file: File,
     recipeId: string,
     order?: number
-  ) => Promise<{ success: boolean; url?: string; id?: string; order?: number; error?: string }>;
-  deleteGalleryImage: (imageId: string) => Promise<{ success: boolean; error?: string }>;
+  ) => Promise<{
+    success: boolean;
+    url?: string;
+    id?: string;
+    order?: number;
+    version?: number;
+    error?: string;
+  }>;
+  deleteGalleryImage: (imageId: string, version: number) => Promise<{ success: boolean; error?: string }>;
   isUploadingImage: boolean;
   isDeletingImage: boolean;
   isUploadingStepImage: boolean;

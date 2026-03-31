@@ -1,8 +1,8 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 
-import AsyncStorage from '@react-native-async-storage/async-storage';
-
 import { createUseAmountDisplayPreference } from '@norish/shared-react/hooks';
+
+import { storage } from '@/lib/storage/mmkv';
 
 /**
  * Module-level in-memory cache + subscriber set, keyed by storage key.
@@ -19,12 +19,12 @@ function notifySubscribers(key: string, value: unknown) {
 }
 
 /**
- * AsyncStorage-backed hook with cross-instance sync.
+ * MMKV-backed hook with cross-instance sync.
  *
  * Matches the `useStorage` shape expected by `createUseAmountDisplayPreference`:
  *   [value, setter]  where setter accepts  T | (prev => T)
  */
-function useAsyncStorageState<T>(
+function useMmkvStorageState<T>(
   key: string,
   defaultValue: T,
   validate?: (data: unknown) => T | null,
@@ -60,20 +60,18 @@ function useAsyncStorageState<T>(
   useEffect(() => {
     if (cache.has(key)) return; // already hydrated by another instance
 
-    void (async () => {
-      try {
-        const raw = await AsyncStorage.getItem(key);
-        if (raw != null) {
-          const parsed: unknown = JSON.parse(raw);
-          const validated = validate ? validate(parsed) : (parsed as T);
-          if (validated != null) {
-            notifySubscribers(key, validated);
-          }
+    try {
+      const raw = storage.getString(key);
+      if (raw != null) {
+        const parsed: unknown = JSON.parse(raw);
+        const validated = validate ? validate(parsed) : (parsed as T);
+        if (validated != null) {
+          notifySubscribers(key, validated);
         }
-      } catch {
-        // ignore read errors, use default
       }
-    })();
+    } catch {
+      // ignore read errors, use default
+    }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [key]);
 
@@ -83,7 +81,7 @@ function useAsyncStorageState<T>(
       const next = typeof updater === 'function'
         ? (updater as (prev: T) => T)(prev)
         : updater;
-      void AsyncStorage.setItem(key, JSON.stringify(next));
+      storage.set(key, JSON.stringify(next));
       notifySubscribers(key, next);
     },
     [key],
@@ -93,5 +91,5 @@ function useAsyncStorageState<T>(
 }
 
 export const useAmountDisplayPreference = createUseAmountDisplayPreference({
-  useStorage: useAsyncStorageState,
+  useStorage: useMmkvStorageState,
 });

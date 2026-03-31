@@ -105,7 +105,7 @@ export function initTrpcWebSocket(server: Server) {
       return;
     }
 
-    trpcWss!.handleUpgrade(req, socket, head, (ws) => {
+    trpcWss!.handleUpgrade(req, socket, head, (ws: wsModule.WebSocket) => {
       // Generate unique connection ID for multiplexer management
       const connectionId = randomUUID();
 

@@ -34,6 +34,7 @@ export const GroceryInsertBaseSchema = z.object({
 // Base update schema with explicit field definitions
 export const GroceryUpdateBaseSchema = z.object({
   id: z.uuid(),
+  version: z.number().int().positive().optional(),
   name: z.string().nullable().optional(),
   unit: z.string().nullable().optional(),
   amount: z.coerce.number().nullable().optional(),
@@ -43,6 +44,16 @@ export const GroceryUpdateBaseSchema = z.object({
   recipeIngredientId: z.string().uuid().nullable().optional(),
   recurringGroceryId: z.string().uuid().nullable().optional(),
   storeId: z.string().uuid().nullable().optional(),
+});
+
+const GroceryVersionInputSchema = z.object({
+  id: z.uuid(),
+  version: z.number().int().positive(),
+});
+
+const GroceryStoreReorderInputSchema = GroceryVersionInputSchema.extend({
+  sortOrder: z.number().int().min(0),
+  storeId: z.uuid().nullable().optional(),
 });
 
 // Create schema without userId (added server-side)
@@ -60,13 +71,36 @@ export const GroceryCreateSchema = z.object({
 export const GroceryUpdateInputSchema = z.object({
   groceryId: z.string(),
   raw: z.string(),
+  version: z.number().int().positive(),
 });
 
 export const GroceryToggleSchema = z.object({
-  groceryIds: z.array(z.string()),
+  groceries: z.array(GroceryVersionInputSchema),
   isDone: z.boolean(),
 });
 
 export const GroceryDeleteSchema = z.object({
-  groceryIds: z.array(z.string()),
+  groceries: z.array(GroceryVersionInputSchema),
+});
+
+export const AssignGroceryToStoreInputSchema = z.object({
+  groceryId: z.uuid(),
+  version: z.number().int().positive(),
+  storeId: z.uuid().nullable(),
+  savePreference: z.boolean().default(true),
+});
+
+export const ReorderGroceriesInStoreInputSchema = z.object({
+  updates: z.array(GroceryStoreReorderInputSchema),
+  savePreference: z.boolean().default(true),
+});
+
+export const MarkAllDoneGroceriesInputSchema = z.object({
+  storeId: z.uuid().nullable(),
+  groceries: z.array(GroceryVersionInputSchema),
+});
+
+export const DeleteDoneGroceriesInputSchema = z.object({
+  storeId: z.uuid().nullable(),
+  groceries: z.array(GroceryVersionInputSchema),
 });

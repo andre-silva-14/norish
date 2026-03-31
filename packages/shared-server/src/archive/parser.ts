@@ -273,8 +273,8 @@ async function importRecipeItems(
         continue;
       }
 
-      const id = crypto.randomUUID();
-      const created = await createRecipeWithRefs(id, userId, dto);
+      const recipeId = dto.id ?? crypto.randomUUID();
+      const created = await createRecipeWithRefs(recipeId, userId, dto);
 
       // Save imported rating if present and user is authenticated
       if (importedRating && userId && created) {

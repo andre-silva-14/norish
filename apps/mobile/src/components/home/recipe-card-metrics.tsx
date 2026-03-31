@@ -7,11 +7,6 @@ import { useIntl } from 'react-intl';
 import type { RecipeCardItem } from '@/lib/recipes/recipe-card.types';
 import { styles } from '@/styles/recipe-card.styles';
 
-function ratingColor(rating: number, accent: string, warning: string, danger: string): string {
-  if (rating <= 1) return danger;
-  if (rating <= 3) return warning;
-  return accent;
-}
 
 function formatDuration(totalDurationMinutes: number) {
   if (totalDurationMinutes < 60) {
@@ -75,12 +70,10 @@ type RecipeCardMetricsProps = {
   recipe: RecipeCardItem;
 };
 
-export function RecipeCardMetrics({ recipe }: RecipeCardMetricsProps) {
+function RecipeCardMetricsComponent({ recipe }: RecipeCardMetricsProps) {
   const intl = useIntl();
-  const [accent, warning, danger, divider] = useThemeColor([
-    'accent',
+  const [warning, divider] = useThemeColor([
     'warning',
-    'danger',
     'border-secondary',
   ] as const);
 
@@ -90,7 +83,7 @@ export function RecipeCardMetrics({ recipe }: RecipeCardMetricsProps) {
         <>
           <RatingHighlight
             rating={recipe.rating}
-            starColor={ratingColor(recipe.rating, accent, warning, danger)}
+            starColor={warning}
           />
           <View style={[styles.highlightDivider, { backgroundColor: divider }]} />
         </>
@@ -109,3 +102,5 @@ export function RecipeCardMetrics({ recipe }: RecipeCardMetricsProps) {
     </View>
   );
 }
+
+export const RecipeCardMetrics = React.memo(RecipeCardMetricsComponent);

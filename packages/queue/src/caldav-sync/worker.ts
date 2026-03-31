@@ -2,6 +2,7 @@ import type { Job } from "bullmq";
 import type { CaldavSyncJobData } from "@norish/queue/contracts/job-types";
 import type { Slot } from "@norish/shared/contracts";
 import type { CaldavSyncStatusInsertDto } from "@norish/shared/contracts/dto/caldav-sync-status";
+import type { CaldavSubscriptionEvents } from "@norish/trpc";
 
 import {
   deletePlannedItem,
@@ -22,6 +23,10 @@ import { createLazyWorker, stopLazyWorker } from "../lazy-worker-manager";
 
 const log = createLogger("worker:caldav-sync");
 
+type CaldavItemStatusUpdatedPayload = CaldavSubscriptionEvents["itemStatusUpdated"] & {
+  version: number;
+};
+
 /**
  * Process a single CalDAV sync job.
  */
@@ -33,15 +38,20 @@ async function processCaldavSyncJob(job: Job<CaldavSyncJobData>): Promise<void> 
     "Processing CalDAV sync job"
   );
 
+  const existingStatus = await getCaldavSyncStatusByItemId(userId, itemId);
+
   // Emit pending status on retry attempts
-  if (job.attemptsMade > 0) {
-    caldavEmitter.emitToUser(userId, "itemStatusUpdated", {
+  if (job.attemptsMade > 0 && existingStatus) {
+    const payload = {
       itemId,
       itemType,
       syncStatus: "pending",
       errorMessage: null,
       caldavEventUid: null,
-    });
+      version: existingStatus.version,
+    } as CaldavItemStatusUpdatedPayload;
+
+    caldavEmitter.emitToUser(userId, "itemStatusUpdated", payload);
   }
 
   if (operation === "delete") {
@@ -54,46 +64,44 @@ async function processCaldavSyncJob(job: Job<CaldavSyncJobData>): Promise<void> 
   const { date, slot, recipeId } = job.data;
 
   // Check if sync status record exists
-  const existingStatus = await getCaldavSyncStatusByItemId(userId, itemId);
   const isNewRecord = !existingStatus;
 
   // Perform the CalDAV sync (throws on error)
   const { uid } = await syncPlannedItem(userId, itemId, eventTitle, date, slot as Slot, recipeId);
 
-  if (isNewRecord) {
-    const insertData: CaldavSyncStatusInsertDto = {
-      userId,
-      itemId,
-      itemType,
-      plannedItemId,
-      eventTitle,
-      syncStatus: "synced",
-      caldavEventUid: uid,
-      retryCount: job.attemptsMade,
-      errorMessage: null,
-      lastSyncAt: new Date(),
-    };
-
-    await createCaldavSyncStatus(insertData);
-  } else {
-    await updateCaldavSyncStatus(existingStatus.id, {
-      eventTitle,
-      syncStatus: "synced",
-      caldavEventUid: uid,
-      retryCount: job.attemptsMade,
-      errorMessage: null,
-      lastSyncAt: new Date(),
-    });
-  }
+  const persistedStatus = isNewRecord
+    ? await createCaldavSyncStatus({
+        userId,
+        itemId,
+        itemType,
+        plannedItemId,
+        eventTitle,
+        syncStatus: "synced",
+        caldavEventUid: uid,
+        retryCount: job.attemptsMade,
+        errorMessage: null,
+        lastSyncAt: new Date(),
+      })
+    : await updateCaldavSyncStatus(existingStatus.id, {
+        eventTitle,
+        syncStatus: "synced",
+        caldavEventUid: uid,
+        retryCount: job.attemptsMade,
+        errorMessage: null,
+        lastSyncAt: new Date(),
+      });
 
   // Emit success events
-  caldavEmitter.emitToUser(userId, "itemStatusUpdated", {
+  const successPayload = {
     itemId,
     itemType,
     syncStatus: "synced",
     errorMessage: null,
     caldavEventUid: uid,
-  });
+    version: persistedStatus.version,
+  } as CaldavItemStatusUpdatedPayload;
+
+  caldavEmitter.emitToUser(userId, "itemStatusUpdated", successPayload);
 
   caldavEmitter.emitToUser(userId, "syncCompleted", {
     itemId,
@@ -129,39 +137,38 @@ async function handleJobFailed(
   // Update database with failure status
   const existingStatus = await getCaldavSyncStatusByItemId(userId, itemId);
 
-  if (!existingStatus) {
-    const insertData: CaldavSyncStatusInsertDto = {
-      userId,
-      itemId,
-      itemType,
-      plannedItemId,
-      eventTitle,
-      syncStatus: "failed",
-      caldavEventUid: null,
-      retryCount: job.attemptsMade,
-      errorMessage,
-      lastSyncAt: new Date(),
-    };
-
-    await createCaldavSyncStatus(insertData);
-  } else {
-    await updateCaldavSyncStatus(existingStatus.id, {
-      eventTitle,
-      syncStatus: isFinalFailure ? "failed" : "pending",
-      retryCount: job.attemptsMade,
-      errorMessage,
-      lastSyncAt: new Date(),
-    });
-  }
+  const persistedStatus = !existingStatus
+    ? await createCaldavSyncStatus({
+        userId,
+        itemId,
+        itemType,
+        plannedItemId,
+        eventTitle,
+        syncStatus: isFinalFailure ? "failed" : "pending",
+        caldavEventUid: null,
+        retryCount: job.attemptsMade,
+        errorMessage,
+        lastSyncAt: new Date(),
+      } satisfies CaldavSyncStatusInsertDto)
+    : await updateCaldavSyncStatus(existingStatus.id, {
+        eventTitle,
+        syncStatus: isFinalFailure ? "failed" : "pending",
+        retryCount: job.attemptsMade,
+        errorMessage,
+        lastSyncAt: new Date(),
+      });
 
   // Emit failure events
-  caldavEmitter.emitToUser(userId, "itemStatusUpdated", {
+  const failurePayload = {
     itemId,
     itemType,
     syncStatus: isFinalFailure ? "failed" : "pending",
     errorMessage,
     caldavEventUid: null,
-  });
+    version: persistedStatus.version,
+  } as CaldavItemStatusUpdatedPayload;
+
+  caldavEmitter.emitToUser(userId, "itemStatusUpdated", failurePayload);
 
   if (isFinalFailure) {
     caldavEmitter.emitToUser(userId, "syncFailed", {

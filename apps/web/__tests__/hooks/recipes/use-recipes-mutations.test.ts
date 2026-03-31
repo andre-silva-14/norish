@@ -1,9 +1,11 @@
 import { act, renderHook } from "@testing-library/react";
+import { TRPCClientError } from "@trpc/client";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import { createMockInfiniteData, createTestQueryClient, createTestWrapper } from "./test-utils";
 
 const mockMutate = vi.fn();
+const mockImportFromUrlMutationOptions = vi.fn((options?: unknown) => options);
 
 vi.mock("@tanstack/react-query", async () => {
   const actual = await vi.importActual("@tanstack/react-query");
@@ -57,7 +59,7 @@ vi.mock("@/app/providers/trpc-provider", () => ({
           queryFn: async () => [],
         }),
       },
-      importFromUrl: { mutationOptions: vi.fn() },
+      importFromUrl: { mutationOptions: mockImportFromUrlMutationOptions },
       importFromImages: { mutationOptions: vi.fn() },
       importFromPaste: { mutationOptions: vi.fn() },
       create: { mutationOptions: vi.fn() },
@@ -84,6 +86,7 @@ describe("useRecipesMutations", () => {
   beforeEach(() => {
     vi.clearAllMocks();
     mockMutate.mockReset();
+    mockImportFromUrlMutationOptions.mockClear();
     queryClient = createTestQueryClient();
   });
 
@@ -132,8 +135,8 @@ describe("useRecipesMutations", () => {
       expect(result.current.importRecipeFromPasteWithAI.length).toBe(1); // Takes text
       expect(result.current.createRecipe.length).toBe(1); // Takes input
       expect(result.current.updateRecipe.length).toBe(2); // Takes id, input
-      expect(result.current.deleteRecipe.length).toBe(1); // Takes id
-      expect(result.current.convertMeasurements.length).toBe(2); // Takes recipeId, system
+      expect(result.current.deleteRecipe.length).toBe(2); // Takes id, version
+      expect(result.current.convertMeasurements.length).toBe(3); // Takes recipeId, system, version
     });
   });
 
@@ -149,6 +152,38 @@ describe("useRecipesMutations", () => {
 
       // Verify it's callable (won't actually call due to mock)
       expect(() => result.current.importRecipe).not.toThrow();
+    });
+
+    it("keeps the optimistic pending recipe when the backend is unreachable", async () => {
+      queryClient.setQueryData(["recipes", "list", {}], createMockInfiniteData());
+      queryClient.setQueryData([["recipes", "getPending"], { type: "query" }], []);
+
+      const { useRecipesMutations } = await import("@/hooks/recipes/use-recipes-mutations");
+      const { result: _result } = renderHook(() => useRecipesMutations(), {
+        wrapper: createTestWrapper(queryClient),
+      });
+
+      const mutationOpts = mockImportFromUrlMutationOptions.mock.calls[0][0] as {
+        onMutate: () => { optimisticPendingId: string };
+        onError: (
+          error: unknown,
+          variables: { url: string; forceAI?: boolean },
+          context: { optimisticPendingId: string }
+        ) => void;
+      };
+
+      const context = mutationOpts.onMutate();
+      const pendingKey = [["recipes", "getPending"], { type: "query" }];
+
+      act(() => {
+        mutationOpts.onError(new TRPCClientError("Request failed"), { url: "https://example.com/recipe" }, context);
+      });
+
+      const pendingRecipes = queryClient.getQueryData<Array<{ recipeId: string }>>(pendingKey);
+
+      expect(pendingRecipes).toHaveLength(1);
+      expect(pendingRecipes?.[0]?.recipeId).toBe(context.optimisticPendingId);
+      expect(context.optimisticPendingId.startsWith("optimistic-pending-recipe:")).toBe(true);
     });
   });
 
@@ -213,20 +248,22 @@ describe("useRecipesMutations", () => {
       queryClient.setQueryData(["recipes", "list", {}], createMockInfiniteData());
       queryClient.setQueryData(["recipes", "pending"], []);
 
-      mockMutate.mockImplementation((_input, options) => {
-        options?.onError?.(
-          new Error("Very long backend stack trace that should not be shown to users")
-        );
-      });
-
       const { useRecipesMutations } = await import("@/hooks/recipes/use-recipes-mutations");
       const { addToast } = await import("@heroui/react");
       const { result } = renderHook(() => useRecipesMutations(), {
         wrapper: createTestWrapper(queryClient),
       });
 
+      const mutationOpts = mockImportFromUrlMutationOptions.mock.calls[0][0] as {
+        onError: (error: unknown, variables: { url: string }, context?: unknown) => void;
+      };
+
       act(() => {
         result.current.importRecipe("https://example.com/recipe");
+        mutationOpts.onError(
+          new Error("Very long backend stack trace that should not be shown to users"),
+          { url: "https://example.com/recipe" }
+        );
       });
 
       expect(addToast).toHaveBeenCalledWith(

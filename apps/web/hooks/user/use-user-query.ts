@@ -12,6 +12,7 @@ export type UserSettingsData = {
   user: User;
   apiKeys: ApiKeyMetadataDto[];
   allergies: string[];
+  allergiesVersion: number;
 };
 
 /**
@@ -32,6 +33,7 @@ export function useUserSettingsQuery() {
     user: data?.user ?? null,
     apiKeys: data?.apiKeys ?? [],
     allergies: allergiesData?.allergies ?? [],
+    allergiesVersion: allergiesData?.version ?? 0,
     error,
     isLoading: isLoading || isLoadingAllergies,
     queryKey,

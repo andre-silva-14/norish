@@ -188,9 +188,6 @@ function buildEmailAndPasswordConfig() {
   };
 }
 
-// Lazy-initialized auth instance
-let _auth: ReturnType<typeof betterAuth> | null = null;
-
 function createAuth() {
   const emailAndPasswordConfig = buildEmailAndPasswordConfig();
 
@@ -469,6 +466,9 @@ function createAuth() {
 
 // Type for the auth instance including plugins
 type AuthInstance = ReturnType<typeof createAuth>;
+
+// Lazy-initialized auth instance
+let _auth: AuthInstance | null = null;
 
 /**
  * Get the auth instance (lazy-initialized on first access)

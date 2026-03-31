@@ -8,9 +8,9 @@ import {
   RecipeIngredientInputSchema,
   RecipeIngredientsWithIdSchema,
 } from "./recipe-ingredients";
-import { RecipeVideosArraySchema, RecipeVideoSchema } from "./recipe-videos";
-import { StepStepSchema } from "./steps";
-import { TagNameSchema } from "./tag";
+import { RecipeVideoSchema, RecipeVideosArraySchema } from "./recipe-videos";
+import { StepOutputSchema, StepStepSchema } from "./steps";
+import { TagNameSchema, TagSummarySchema } from "./tag";
 
 export const recipeCategorySchema = z.enum(["Breakfast", "Lunch", "Dinner", "Snack"]);
 
@@ -30,6 +30,7 @@ export const AuthorSchema = z
     id: z.string(),
     name: z.string().nullable().optional(),
     image: z.string().nullable().optional(),
+    version: z.number().int().positive(),
   })
   .optional();
 
@@ -39,7 +40,7 @@ export const RecipeDashboardSchema = RecipeSelectBaseSchema.omit({
   carbs: true,
   protein: true,
 }).extend({
-  tags: z.array(TagNameSchema).default([]),
+  tags: z.array(TagSummarySchema).default([]),
   categories: z.array(recipeCategorySchema).default([]),
   author: AuthorSchema,
   averageRating: z.number().nullable().optional(),
@@ -48,8 +49,8 @@ export const RecipeDashboardSchema = RecipeSelectBaseSchema.omit({
 
 export const FullRecipeSchema = RecipeSelectBaseSchema.extend({
   recipeIngredients: z.array(RecipeIngredientsWithIdSchema),
-  steps: z.array(StepStepSchema).default([]),
-  tags: z.array(TagNameSchema).default([]),
+  steps: z.array(StepOutputSchema).default([]),
+  tags: z.array(TagSummarySchema).default([]),
   categories: z.array(recipeCategorySchema).default([]),
   author: AuthorSchema,
   images: RecipeImagesArraySchema.default([]),
@@ -98,6 +99,7 @@ export const RecipeGetInputSchema = z.object({
 
 export const RecipeDeleteInputSchema = z.object({
   id: z.uuid(),
+  version: z.number().int().positive(),
 });
 
 export const RecipeImportInputSchema = z.object({
@@ -107,10 +109,12 @@ export const RecipeImportInputSchema = z.object({
 export const RecipeConvertInputSchema = z.object({
   recipeId: z.uuid(),
   targetSystem: z.enum(["metric", "us"]),
+  version: z.number().int().positive(),
 });
 
 export const RecipeUpdateInputSchema = z.object({
   id: z.uuid(),
+  version: z.number().int().positive(),
   data: FullRecipeUpdateSchema,
 });
 

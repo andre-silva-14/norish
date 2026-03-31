@@ -242,14 +242,19 @@ const create = authedProcedure.input(FullRecipeInsertSchema).mutation(({ ctx, in
 });
 
 const update = authedProcedure.input(RecipeUpdateInputSchema).mutation(({ ctx, input }) => {
-  const { id, data } = input;
+  const { id, data, version } = input;
 
   log.info({ userId: ctx.user.id, recipeId: id }, "Updating recipe");
   log.debug({ recipe: input }, "Full recipe data");
 
-  assertRecipeAccess(ctx, id, "edit")
-    .then(async () => {
-      await updateRecipeWithRefs(id, ctx.user.id, data);
+    assertRecipeAccess(ctx, id, "edit")
+      .then(async () => {
+      const result = await updateRecipeWithRefs(id, ctx.user.id, data, version);
+
+      if (result.stale) {
+        log.info({ userId: ctx.user.id, recipeId: id, version }, "Ignoring stale recipe update");
+        return;
+      }
 
       const updatedRecipe = await getRecipeFull(id);
 
@@ -275,13 +280,26 @@ const updateCategories = authedProcedure
   .input(
     z.object({
       recipeId: z.string().uuid(),
+      version: z.number().int().positive(),
       categories: z.array(z.enum(["Breakfast", "Lunch", "Dinner", "Snack"])),
     })
   )
   .mutation(async ({ ctx, input }) => {
     await assertRecipeAccess(ctx, input.recipeId, "edit");
 
-    await updateRecipeCategories(input.recipeId, input.categories as RecipeCategory[]);
+    const result = await updateRecipeCategories(
+      input.recipeId,
+      input.categories as RecipeCategory[],
+      input.version
+    );
+
+    if (result.stale) {
+      log.info(
+        { userId: ctx.user.id, recipeId: input.recipeId, version: input.version },
+        "Ignoring stale recipe category update"
+      );
+      return { success: true, stale: true };
+    }
 
     const updated = await getRecipeFull(input.recipeId);
 
@@ -303,14 +321,19 @@ const updateCategories = authedProcedure
 const deleteProcedure = authedProcedure
   .input(RecipeDeleteInputSchema)
   .mutation(({ ctx, input }) => {
-    const { id } = input;
+    const { id, version } = input;
 
     log.info({ userId: ctx.user.id, recipeId: id }, "Deleting recipe");
 
     assertRecipeAccess(ctx, id, "delete")
       .then(async () => {
         await deleteRecipeImagesDir(id);
-        await deleteRecipeById(id);
+        const result = await deleteRecipeById(id, version);
+
+        if (result.stale) {
+          log.info({ userId: ctx.user.id, recipeId: id, version }, "Ignoring stale recipe delete");
+          return;
+        }
 
         log.info({ userId: ctx.user.id, recipeId: id }, "Recipe deleted");
         const policy = await getRecipePermissionPolicy();
@@ -366,7 +389,7 @@ const reserveId = authedProcedure.query(() => {
 const convertMeasurements = authedProcedure
   .input(RecipeConvertInputSchema)
   .mutation(({ ctx, input }) => {
-    const { recipeId, targetSystem } = input;
+      const { recipeId, targetSystem, version } = input;
 
     log.info({ userId: ctx.user.id, recipeId, targetSystem }, "Converting recipe measurements");
 
@@ -421,7 +444,12 @@ const convertMeasurements = authedProcedure
       .then((recipe) => {
         // Check if already converted (has ingredients with target system)
         if (recipe.recipeIngredients.some((ri) => ri.systemUsed === targetSystem)) {
-          return setActiveSystemForRecipe(recipe.id, targetSystem).then(async () => {
+          return setActiveSystemForRecipe(recipe.id, targetSystem, version).then(async (result) => {
+            if (result.stale) {
+              log.info({ userId: ctx.user.id, recipeId, version }, "Ignoring stale recipe conversion");
+              return null;
+            }
+
             const policy = await getRecipePermissionPolicy();
 
             emitByPolicy(
@@ -473,7 +501,7 @@ const convertMeasurements = authedProcedure
         }));
 
         return addStepsAndIngredientsToRecipeByInput(steps, ingredients)
-          .then(() => setActiveSystemForRecipe(recipe.id, targetSystem))
+          .then(() => setActiveSystemForRecipe(recipe.id, targetSystem, version))
           .then(() => getRecipeFull(recipe.id))
           .then(async (updatedRecipe) => {
             if (updatedRecipe) {
@@ -545,18 +573,27 @@ const importFromImagesProcedure = authedProcedure
     const files: Array<{ data: string; mimeType: string; filename: string }> = [];
 
     // Process files from FormData
-    for (const [key, value] of input.entries()) {
-      if (key.startsWith("file") && value instanceof File) {
-        const buffer = Buffer.from(await value.arrayBuffer());
-        const base64 = buffer.toString("base64");
+    const filePromises: Promise<void>[] = [];
 
-        files.push({
-          data: base64,
-          mimeType: value.type,
-          filename: value.name,
-        });
+    input.forEach((value, key) => {
+      if (!key.startsWith("file") || !(value instanceof File)) {
+        return;
       }
-    }
+
+      filePromises.push(
+        value.arrayBuffer().then((arrayBuffer) => {
+          const buffer = Buffer.from(arrayBuffer);
+
+          files.push({
+            data: buffer.toString("base64"),
+            mimeType: value.type,
+            filename: value.name,
+          });
+        })
+      );
+    });
+
+    await Promise.all(filePromises);
 
     if (files.length === 0) {
       throw new TRPCError({

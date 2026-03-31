@@ -1,5 +1,7 @@
 import { index, pgEnum, pgTable, text, timestamp, uuid } from "drizzle-orm/pg-core";
 
+import { versionColumn } from "./shared";
+
 import { users } from "./auth";
 
 export const siteAuthTokenTypeEnum = pgEnum("site_auth_token_type", ["header", "cookie"]);
@@ -17,6 +19,7 @@ export const siteAuthTokens = pgTable(
     type: siteAuthTokenTypeEnum("type").notNull(),
     createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
     updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
+    ...versionColumn,
   },
   (t) => [
     index("idx_site_auth_tokens_user_id").on(t.userId),

@@ -108,7 +108,7 @@ export function RecipeActionsMenu({ ctx }: RecipeActionsMenuProps) {
           text: intl.formatMessage({ id: 'recipes.deleteModal.title' }),
           style: 'destructive',
           onPress: () => {
-            deleteRecipe(recipe.id);
+            deleteRecipe(recipe.id, recipe.version);
             router.back();
           },
         },

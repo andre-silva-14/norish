@@ -28,7 +28,8 @@ export function createUseRatingsSubscription({ useTRPC }: CreateRecipeHooksOptio
 
     useSubscription(
       trpc.ratings.onRatingUpdated.subscriptionOptions(undefined, {
-        onData: ({ recipeId, averageRating, ratingCount }: any) => {
+        onData: ({ payload }: any) => {
+          const { recipeId, averageRating, ratingCount } = payload;
           const averageQueryKey = trpc.ratings.getAverage.queryKey({ recipeId });
 
           queryClient.setQueryData(averageQueryKey, { recipeId, averageRating, ratingCount });
@@ -75,7 +76,8 @@ export function createUseRatingsSubscription({ useTRPC }: CreateRecipeHooksOptio
 
     useSubscription(
       trpc.ratings.onRatingFailed.subscriptionOptions(undefined, {
-        onData: ({ recipeId, reason }: any) => {
+        onData: ({ payload }: any) => {
+          const { recipeId, reason } = payload;
           const userRatingQueryKey = trpc.ratings.getUserRating.queryKey({ recipeId });
 
           queryClient.invalidateQueries({ queryKey: userRatingQueryKey });

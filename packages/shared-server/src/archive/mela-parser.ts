@@ -45,9 +45,10 @@ export async function parseMelaRecipeToDTO(json: MelaRecipe): Promise<FullRecipe
 
   // Save first image if present
   let image: string | undefined = undefined;
+  const firstImage = json.images?.[0];
 
-  if (json.images && json.images.length) {
-    image = await saveBase64Image(json.images[0], recipeId);
+  if (firstImage) {
+    image = await saveBase64Image(firstImage, recipeId);
   }
 
   const dto = await buildRecipeDTO({

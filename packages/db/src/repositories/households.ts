@@ -13,9 +13,11 @@ import {
   HouseholdInsertBaseSchema,
   HouseholdSelectBaseSchema,
   HouseholdUserInsertBaseSchema,
+  HouseholdUserSelectBaseSchema,
   HouseholdWithUsersNamesSchema,
 } from "@norish/shared/contracts/zod/household";
 
+import { appliedOutcome, type MutationOutcome, staleOutcome } from "./mutation-outcomes";
 import { getUsersByIds } from "./users";
 
 export async function getUsersByHouseholdId(householdId: string): Promise<HouseholdUserDto[]> {
@@ -73,6 +75,7 @@ export async function getHouseholdForUser(
           id: true,
           name: true,
           adminUserId: true,
+          version: true,
           createdAt: true,
           updatedAt: true,
           joinCode: true,
@@ -80,7 +83,7 @@ export async function getHouseholdForUser(
         },
         with: {
           users: {
-            columns: { userId: true },
+            columns: { userId: true, version: true },
           },
         },
       },
@@ -90,7 +93,8 @@ export async function getHouseholdForUser(
   if (!rows?.household) return null;
 
   const h = rows.household;
-  const allUserIds = (h.users ?? []).map((m: any) => m.userId);
+  const members = (h.users ?? []) as Array<{ userId: string; version: number }>;
+  const allUserIds = members.map((m) => m.userId);
 
   const usersRows = await getUsersByIds(allUserIds);
 
@@ -100,14 +104,16 @@ export async function getHouseholdForUser(
     id: h.id,
     name: h.name,
     adminUserId: h.adminUserId,
+    version: h.version,
     createdAt: h.createdAt,
     updatedAt: h.updatedAt,
     joinCode: h.joinCode,
     joinCodeExpiresAt: h.joinCodeExpiresAt,
-    users: allUserIds.map((uid: string) => ({
-      id: uid,
-      name: idToName.get(uid) ?? null,
-      isAdmin: uid === h.adminUserId,
+    users: members.map((member) => ({
+      id: member.userId,
+      name: idToName.get(member.userId) ?? null,
+      isAdmin: member.userId === h.adminUserId,
+      version: member.version,
     })),
   };
 
@@ -162,18 +168,33 @@ export async function addUserToHousehold(input: HouseholdUserInsertDto): Promise
           .limit(1)
       )[0];
 
-  const validated = HouseholdUserInsertBaseSchema.safeParse(resolved);
+  const validated = HouseholdUserSelectBaseSchema.safeParse(resolved);
 
   if (!validated.success) throw new Error("Failed to add user to household");
 
-  return validated.data as HouseholdUserDto;
+  return validated.data;
 }
 
-export async function removeUserFromHousehold(householdId: string, userId: string): Promise<void> {
-  await db.transaction(async (tx) => {
-    await tx
+export async function removeUserFromHousehold(
+  householdId: string,
+  userId: string,
+  version?: number
+): Promise<MutationOutcome<void>> {
+  return await db.transaction(async (tx) => {
+    const whereConditions = [eq(householdUsers.householdId, householdId), eq(householdUsers.userId, userId)];
+
+    if (version) {
+      whereConditions.push(eq(householdUsers.version, version));
+    }
+
+    const deletedMembership = await tx
       .delete(householdUsers)
-      .where(and(eq(householdUsers.householdId, householdId), eq(householdUsers.userId, userId)));
+      .where(and(...whereConditions))
+      .returning({ userId: householdUsers.userId });
+
+    if (deletedMembership.length === 0) {
+      return staleOutcome();
+    }
 
     const rows = await tx
       .select({ count: sql<number>`count(*)` })
@@ -185,6 +206,8 @@ export async function removeUserFromHousehold(householdId: string, userId: strin
     if (count === 0) {
       await tx.delete(households).where(eq(households.id, householdId));
     }
+
+    return appliedOutcome(undefined);
   });
 }
 
@@ -213,21 +236,34 @@ export async function joinHouseholdByCode(
 /**
  * Regenerates the join code for a household with a new 10-minute expiration
  */
-export async function regenerateJoinCode(householdId: string): Promise<HouseholdDto> {
+export async function regenerateJoinCode(
+  householdId: string,
+  version?: number
+): Promise<MutationOutcome<HouseholdDto>> {
   const code = await generateUniqueJoinCode();
   const expiresAt = new Date(Date.now() + 10 * 60 * 1000); // 10 minutes
 
+  const whereConditions = [eq(households.id, householdId)];
+
+  if (version) {
+    whereConditions.push(eq(households.version, version));
+  }
+
   const [row] = await db
     .update(households)
-    .set({ joinCode: code, joinCodeExpiresAt: expiresAt, updatedAt: new Date() })
-    .where(eq(households.id, householdId))
+    .set({ joinCode: code, joinCodeExpiresAt: expiresAt, updatedAt: new Date(), version: sql`${households.version} + 1` })
+    .where(and(...whereConditions))
     .returning();
+
+  if (!row) {
+    return staleOutcome();
+  }
 
   const validated = HouseholdSelectBaseSchema.safeParse(row);
 
   if (!validated.success) throw new Error("Failed to regenerate join code");
 
-  return validated.data;
+  return appliedOutcome(validated.data);
 }
 
 /**
@@ -245,8 +281,9 @@ export async function isUserHouseholdAdmin(householdId: string, userId: string):
 export async function kickUserFromHousehold(
   householdId: string,
   userIdToKick: string,
-  adminUserId: string
-): Promise<void> {
+  adminUserId: string,
+  version?: number
+): Promise<MutationOutcome<void>> {
   // Verify admin
   const isAdmin = await isUserHouseholdAdmin(householdId, adminUserId);
 
@@ -259,7 +296,7 @@ export async function kickUserFromHousehold(
     throw new Error("Admin cannot kick themselves. Transfer admin first or leave the household.");
   }
 
-  await removeUserFromHousehold(householdId, userIdToKick);
+  return await removeUserFromHousehold(householdId, userIdToKick, version);
 }
 
 /**
@@ -268,8 +305,9 @@ export async function kickUserFromHousehold(
 export async function transferHouseholdAdmin(
   householdId: string,
   currentAdminId: string,
-  newAdminId: string
-): Promise<HouseholdDto> {
+  newAdminId: string,
+  version?: number
+): Promise<MutationOutcome<HouseholdDto>> {
   // Verify current admin
   const isAdmin = await isUserHouseholdAdmin(householdId, currentAdminId);
 
@@ -285,17 +323,27 @@ export async function transferHouseholdAdmin(
     throw new Error("New admin must be a member of the household");
   }
 
+  const whereConditions = [eq(households.id, householdId)];
+
+  if (version) {
+    whereConditions.push(eq(households.version, version));
+  }
+
   const [row] = await db
     .update(households)
-    .set({ adminUserId: newAdminId, updatedAt: new Date() })
-    .where(eq(households.id, householdId))
+    .set({ adminUserId: newAdminId, updatedAt: new Date(), version: sql`${households.version} + 1` })
+    .where(and(...whereConditions))
     .returning();
+
+  if (!row) {
+    return staleOutcome();
+  }
 
   const validated = HouseholdSelectBaseSchema.safeParse(row);
 
   if (!validated.success) throw new Error("Failed to transfer admin");
 
-  return validated.data;
+  return appliedOutcome(validated.data);
 }
 
 /**

@@ -24,6 +24,8 @@ import Animated, {
 
 import type { MediaItem } from '@/lib/recipes/map-recipe-to-media-items';
 
+import { NoImagePlaceholder } from '@/components/shared/no-image-placeholder';
+
 import { MediaCarouselModal } from './media-carousel-modal';
 
 // ─── Props ───────────────────────────────────────────────────────────────────
@@ -60,6 +62,15 @@ export function RecipeMediaHeader({ media, liked, onDoubleTapLike }: Props) {
   const { width, height } = useWindowDimensions();
   const [activeIndex, setActiveIndex] = useState(0);
   const [carouselVisible, setCarouselVisible] = useState(false);
+  const [errorIndices, setErrorIndices] = useState<Set<number>>(new Set());
+
+  const handleSlideError = useCallback((index: number) => {
+    setErrorIndices((prev) => {
+      const next = new Set(prev);
+      next.add(index);
+      return next;
+    });
+  }, []);
   const [carouselStartIndex, setCarouselStartIndex] = useState(0);
 
   // Double-tap tracking
@@ -175,13 +186,13 @@ export function RecipeMediaHeader({ media, liked, onDoubleTapLike }: Props) {
         lastTap.current = 0;
       } else {
         lastTap.current = now;
-        // Single tap – open carousel for images only
+        // Single tap – open carousel for non-errored images only
         const item = media[index];
-        if (item?.type === 'image') {
+        if (item?.type === 'image' && !errorIndices.has(index)) {
           setTimeout(() => {
             if (lastTap.current !== 0) {
               const imageIndices = media
-                .map((m, i) => (m.type === 'image' ? i : -1))
+                .map((m, i) => (m.type === 'image' && !errorIndices.has(i) ? i : -1))
                 .filter((i) => i >= 0);
               const imageOnlyIdx = imageIndices.indexOf(index);
               setCarouselStartIndex(imageOnlyIdx >= 0 ? imageOnlyIdx : 0);
@@ -192,7 +203,7 @@ export function RecipeMediaHeader({ media, liked, onDoubleTapLike }: Props) {
         }
       }
     },
-    [media, liked, triggerLikeAnimation, onDoubleTapLike],
+    [media, liked, errorIndices, triggerLikeAnimation, onDoubleTapLike],
   );
 
   const onViewableItemsChanged = useRef(
@@ -208,27 +219,35 @@ export function RecipeMediaHeader({ media, liked, onDoubleTapLike }: Props) {
   }).current;
 
   const imageOnlyMedia = media.filter(
-    (m): m is Extract<MediaItem, { type: 'image' }> => m.type === 'image',
+    (m, i): m is Extract<MediaItem, { type: 'image' }> =>
+      m.type === 'image' && !errorIndices.has(i),
   );
 
   return (
     <View className="absolute inset-0">
-      <FlatList
-        data={media}
-        horizontal
-        pagingEnabled
-        showsHorizontalScrollIndicator={false}
-        keyExtractor={(_, i) => `media-${i}`}
-        onViewableItemsChanged={onViewableItemsChanged}
-        viewabilityConfig={viewabilityConfig}
-        renderItem={({ item, index }) => (
-          <MediaSlide
-            item={item}
-            width={width}
-            onPress={() => handlePress(index)}
-          />
-        )}
-      />
+      {media.length === 0 ? (
+        <NoImagePlaceholder variant="header" />
+      ) : (
+        <FlatList
+          data={media}
+          horizontal
+          pagingEnabled
+          showsHorizontalScrollIndicator={false}
+          keyExtractor={(_, i) => `media-${i}`}
+          onViewableItemsChanged={onViewableItemsChanged}
+          viewabilityConfig={viewabilityConfig}
+          renderItem={({ item, index }) => (
+            <MediaSlide
+              item={item}
+              index={index}
+              width={width}
+              hasError={errorIndices.has(index)}
+              onSlideError={handleSlideError}
+              onPress={() => handlePress(index)}
+            />
+          )}
+        />
+      )}
 
       {/* Heart overlay — starts left-side, lower in media, arcs to like button */}
       <Animated.View
@@ -259,12 +278,14 @@ export function RecipeMediaHeader({ media, liked, onDoubleTapLike }: Props) {
       )}
 
       {/* Full-screen image carousel modal */}
-      <MediaCarouselModal
-        visible={carouselVisible}
-        images={imageOnlyMedia.map((m) => m.uri)}
-        startIndex={carouselStartIndex}
-        onClose={() => setCarouselVisible(false)}
-      />
+      {media.length > 0 && (
+        <MediaCarouselModal
+          visible={carouselVisible}
+          images={imageOnlyMedia.map((m) => m.uri)}
+          startIndex={carouselStartIndex}
+          onClose={() => setCarouselVisible(false)}
+        />
+      )}
     </View>
   );
 }
@@ -273,18 +294,36 @@ export function RecipeMediaHeader({ media, liked, onDoubleTapLike }: Props) {
 
 function MediaSlide({
   item,
+  index,
   width,
+  hasError,
+  onSlideError,
   onPress,
 }: {
   item: MediaItem;
+  index: number;
   width: number;
+  hasError: boolean;
+  onSlideError: (index: number) => void;
   onPress: () => void;
 }) {
+  const handleError = useCallback(() => {
+    onSlideError(index);
+  }, [index, onSlideError]);
+
   if (item.type === 'video') {
     return (
       <View style={{ width }}>
         <VideoSlide item={item} width={width} onDoubleTap={onPress} />
       </View>
+    );
+  }
+
+  if (hasError) {
+    return (
+      <Pressable onPress={onPress} style={{ width }}>
+        <NoImagePlaceholder variant="header" />
+      </Pressable>
     );
   }
 
@@ -295,6 +334,7 @@ function MediaSlide({
         contentFit="cover"
         transition={400}
         style={StyleSheet.absoluteFill}
+        onError={handleError}
       />
     </Pressable>
   );

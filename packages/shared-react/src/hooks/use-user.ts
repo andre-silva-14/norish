@@ -11,6 +11,7 @@ export function useUser() {
         email: session.user.email,
         name: session.user.name,
         image: session.user.image ?? null,
+        version: 1,
       }
     : null;
 

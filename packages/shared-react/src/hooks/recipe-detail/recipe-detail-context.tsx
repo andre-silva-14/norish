@@ -7,6 +7,8 @@ import type {
 
 import React, { createContext, useCallback, useContext, useEffect, useMemo, useState } from "react";
 
+import { shouldPreserveOptimisticUpdate } from "../optimistic-updates";
+
 
 // --- Types ---
 
@@ -66,11 +68,10 @@ export type RecipeDetailAdapters = {
   useAllergyDetectionMutation: () => { mutate: (input: { recipeId: string }) => void };
   useAllergyDetection: (recipeId: string, onStart: () => void, onEnd: () => void) => void;
   useActiveAllergies: () => { allergies: string[]; allergySet: Set<string> };
-  useConvertMutation: () => {
-    mutate: (
-      input: { recipeId: string; targetSystem: MeasurementSystem },
-      opts: { onSuccess: () => void; onError: () => void }
-    ) => void;
+  useConvertMutation: (recipeId: string) => {
+    convertMeasurements: (targetSystem: MeasurementSystem, version: number) => void;
+    error: unknown;
+    reset: () => void;
   };
   useRatingQuery: (recipeId: string) => { userRating: number | null };
   useRatingsMutation: () => { rateRecipe: (recipeId: string, rating: number) => void };
@@ -162,7 +163,10 @@ export function createRecipeDetailContext(adapters: RecipeDetailAdapters) {
     const { allergies, allergySet } = adapters.useActiveAllergies();
 
     // Mutation for converting measurements
-    const convertMutation = adapters.useConvertMutation();
+    const convertMutation = adapters.useConvertMutation(recipeId);
+    const convertError = convertMutation.error;
+    const resetConvertMutation = convertMutation.reset;
+    const convertMeasurements = convertMutation.convertMeasurements;
 
     // --- Ratings ---
     const { userRating } = adapters.useRatingQuery(recipeId);
@@ -235,21 +239,29 @@ export function createRecipeDetailContext(adapters: RecipeDetailAdapters) {
       setAdjustedIngredients(recipe.recipeIngredients);
     }, [recipe]);
 
+    useEffect(() => {
+      if (!convertingTo || !convertError) {
+        return;
+      }
+
+      if (!shouldPreserveOptimisticUpdate(convertError)) {
+        reset();
+      }
+
+      resetConvertMutation();
+    }, [convertError, convertingTo, reset, resetConvertMutation]);
+
     const startConversion = useCallback(
       (target: MeasurementSystem) => {
-        convertMutation.mutate(
-          { recipeId: recipe!.id, targetSystem: target },
-          {
-            onSuccess: () => {
-              setConvertingTo(target);
-            },
-            onError: () => {
-              reset();
-            },
-          }
-        );
+        if (!recipe) {
+          return;
+        }
+
+        setConvertingTo(target);
+
+        convertMeasurements(target, recipe.version);
       },
-      [convertMutation, recipe, reset]
+      [convertMeasurements, recipe]
     );
 
     const setIngredientAmounts = useCallback((servings: number) => {

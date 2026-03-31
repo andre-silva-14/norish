@@ -36,7 +36,7 @@ export async function updateCaldavSyncStatus(
 ): Promise<CaldavSyncStatusDto> {
   const [row] = await db
     .update(caldavSyncStatus)
-    .set({ ...updates, updatedAt: new Date() })
+    .set({ ...updates, updatedAt: new Date(), version: sql`${caldavSyncStatus.version} + 1` })
     .where(eq(caldavSyncStatus.id, id))
     .returning();
 
@@ -105,6 +105,7 @@ export async function getCaldavSyncStatusesByUser(
       retryCount: caldavSyncStatus.retryCount,
       errorMessage: caldavSyncStatus.errorMessage,
       lastSyncAt: caldavSyncStatus.lastSyncAt,
+      version: caldavSyncStatus.version,
       createdAt: caldavSyncStatus.createdAt,
       updatedAt: caldavSyncStatus.updatedAt,
       itemDate: plannedItems.date,
@@ -154,6 +155,7 @@ export async function getCaldavSyncStatusesByUser(
     retryCount: item.retryCount,
     errorMessage: item.errorMessage,
     lastSyncAt: item.lastSyncAt,
+    version: item.version,
     createdAt: item.createdAt,
     updatedAt: item.updatedAt,
     date: item.itemDate,

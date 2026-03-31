@@ -1,5 +1,7 @@
 import { index, pgTable, primaryKey, text, timestamp, uuid } from "drizzle-orm/pg-core";
 
+import { versionColumn } from "./shared";
+
 import { users } from "./auth";
 import { tags } from "./tags";
 
@@ -13,6 +15,7 @@ export const userAllergies = pgTable(
       .notNull()
       .references(() => tags.id, { onDelete: "cascade" }),
     createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+    ...versionColumn,
   },
   (t) => [
     primaryKey({

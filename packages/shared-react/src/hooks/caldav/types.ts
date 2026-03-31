@@ -73,6 +73,7 @@ export type CaldavCacheHelpers = {
 };
 
 export type SaveCaldavConfigInput = {
+  version?: number;
   serverUrl: string;
   calendarUrl?: string | null;
   username: string;

@@ -1,11 +1,13 @@
 import type { SubscriptionMultiplexer } from "@norish/queue/redis/subscription-multiplexer";
 import type { HouseholdWithUsersNamesDto, User } from "@norish/shared/contracts";
+import type { OperationId } from "@norish/shared/contracts/realtime-envelope";
 import type { Context } from "./context";
 
 import { TRPCError } from "@trpc/server";
 import { isUserServerAdmin } from "@norish/db";
 import { getCachedHouseholdForUser } from "@norish/db/cached-household";
 import { getOrCreateMultiplexer } from "@norish/queue/redis/subscription-multiplexer";
+import { runWithOperationContext } from "@norish/shared-server/lib/operation-context";
 
 
 import { middleware, publicProcedure } from "./trpc";
@@ -23,35 +25,42 @@ const withAuth = middleware(async ({ ctx, next }) => {
     });
   }
 
-  const household = ctx.household ?? (await getCachedHouseholdForUser(ctx.user.id));
+  const user = ctx.user;
+
+  const household = ctx.household ?? (await getCachedHouseholdForUser(user.id));
 
   const householdUserIds = household?.users.map((u: { id: string }) => u.id) ?? [];
-  const allUserIds = [ctx.user.id, ...householdUserIds].filter(
+  const allUserIds = [user.id, ...householdUserIds].filter(
     (id, i, arr) => arr.indexOf(id) === i
   );
-  const householdKey = household?.id ?? ctx.user.id;
-  const isServerAdmin = ctx.user.isServerAdmin ?? false;
+  const householdKey = household?.id ?? user.id;
+  const isServerAdmin = user.isServerAdmin ?? false;
 
   // Get or create the subscription multiplexer for this WebSocket connection
   // The multiplexer consolidates all Redis subscriptions into a single connection
   let multiplexer: SubscriptionMultiplexer | null = ctx.multiplexer;
 
   if (!multiplexer && ctx.connectionId) {
-    multiplexer = getOrCreateMultiplexer(ctx.connectionId, ctx.user.id, householdKey);
+    multiplexer = getOrCreateMultiplexer(ctx.connectionId, user.id, householdKey);
   }
 
-  return next({
-    ctx: {
-      ...ctx,
-      user: ctx.user,
-      household,
-      householdKey,
-      userIds: allUserIds,
-      householdUserIds: householdUserIds.length > 0 ? householdUserIds : null,
-      isServerAdmin,
-      multiplexer,
-    },
-  });
+  const operationId = ctx.operationId ?? undefined;
+
+  return runWithOperationContext({ operationId }, () =>
+    next({
+      ctx: {
+        ...ctx,
+        user,
+        household,
+        householdKey,
+        userIds: allUserIds,
+        householdUserIds: householdUserIds.length > 0 ? householdUserIds : null,
+        isServerAdmin,
+        multiplexer,
+        operationId: ctx.operationId,
+      },
+    })
+  );
 });
 
 /**
@@ -70,6 +79,7 @@ export type AuthedProcedureContext = Context & {
   householdUserIds: string[] | null;
   isServerAdmin: boolean;
   multiplexer: SubscriptionMultiplexer | null;
+  operationId: OperationId | null;
 };
 
 /**
@@ -84,7 +94,9 @@ const withServerAdmin = middleware(async ({ ctx, next }) => {
     });
   }
 
-  const isAdmin = await isUserServerAdmin(ctx.user.id);
+  const user = ctx.user;
+
+  const isAdmin = await isUserServerAdmin(user.id);
 
   if (!isAdmin) {
     throw new TRPCError({
@@ -94,11 +106,11 @@ const withServerAdmin = middleware(async ({ ctx, next }) => {
   }
 
   return next({
-    ctx: {
-      ...ctx,
-      user: ctx.user,
-    },
-  });
+      ctx: {
+        ...ctx,
+        user,
+      },
+    });
 });
 
 /**

@@ -1,4 +1,5 @@
-import { StyleSheet } from 'react-native';
+import React from 'react';
+import { StyleSheet, View } from 'react-native';
 
 export const recipeListScreenStyles = StyleSheet.create({
   list: {
@@ -39,3 +40,7 @@ export const recipeListScreenStyles = StyleSheet.create({
     fontWeight: '600',
   },
 });
+
+export function RowSeparator() {
+  return <View style={recipeListScreenStyles.rowSeparator} />;
+}

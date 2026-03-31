@@ -14,7 +14,7 @@ export function createUseNutritionSubscription({ useTRPC }: CreateRecipeHooksOpt
     useSubscription(
       trpc.recipes.onNutritionStarted.subscriptionOptions(undefined, {
         enabled: !!recipeId,
-        onData: (payload: any) => {
+        onData: ({ payload }: any) => {
           if (payload.recipeId === recipeId) {
             onStarted();
           }
@@ -25,7 +25,7 @@ export function createUseNutritionSubscription({ useTRPC }: CreateRecipeHooksOpt
     useSubscription(
       trpc.recipes.onFailed.subscriptionOptions(undefined, {
         enabled: !!recipeId,
-        onData: (payload: any) => {
+        onData: ({ payload }: any) => {
           if (payload.recipeId === recipeId) {
             onCompleted();
           }
@@ -36,7 +36,7 @@ export function createUseNutritionSubscription({ useTRPC }: CreateRecipeHooksOpt
     useSubscription(
       trpc.recipes.onUpdated.subscriptionOptions(undefined, {
         enabled: !!recipeId,
-        onData: (payload: any) => {
+        onData: ({ payload }: any) => {
           if (payload.recipe.id === recipeId) {
             onCompleted();
           }
