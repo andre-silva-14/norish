@@ -212,5 +212,6 @@ export async function getGenerationSettings(): Promise<GenerationSettings> {
   return {
     temperature: config?.temperature,
     maxOutputTokens: config?.maxTokens,
+    ...(config?.timeoutMs ? { abortSignal: AbortSignal.timeout(config.timeoutMs) } : {}),
   };
 }

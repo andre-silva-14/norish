@@ -164,6 +164,7 @@ const ServerConfigSchema = z.object({
   AI_API_KEY: z.string().optional(),
   AI_TEMPERATURE: z.coerce.number().min(0).max(2).default(1.0),
   AI_MAX_TOKENS: z.coerce.number().default(10000),
+  AI_TIMEOUT_MS: z.coerce.number().default(300000),
 
   // Video Processing Configuration
   VIDEO_PARSING_ENABLED: z

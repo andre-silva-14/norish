@@ -249,6 +249,7 @@ export const AIConfigSchema = z.object({
   apiKey: z.string().optional(),
   temperature: z.number().min(0).max(2),
   maxTokens: z.number().int().positive(),
+  timeoutMs: z.number().int().positive().optional().default(300000),
   autoTagAllergies: z.boolean().default(true),
   alwaysUseAI: z.boolean().default(false),
   autoTaggingMode: AutoTaggingModeSchema.default("disabled"),

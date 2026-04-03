@@ -96,6 +96,7 @@ export async function execute<T>(options: ExecuteOptions<T>): Promise<AIResult<T
       system: systemMessage,
       temperature: temperature ?? settings.temperature,
       maxOutputTokens: maxTokens ?? settings.maxOutputTokens,
+      abortSignal: settings.abortSignal,
     };
 
     // Execute the AI call - use messages format for vision, prompt for text

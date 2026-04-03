@@ -23,6 +23,7 @@ export interface ModelConfig {
 export interface GenerationSettings {
   temperature?: number;
   maxOutputTokens?: number;
+  abortSignal?: AbortSignal;
 }
 
 /**

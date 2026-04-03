@@ -109,6 +109,7 @@ const REQUIRED_CONFIGS: ConfigDefinition[] = [
       apiKey: SERVER_CONFIG.AI_API_KEY || undefined,
       temperature: SERVER_CONFIG.AI_TEMPERATURE,
       maxTokens: SERVER_CONFIG.AI_MAX_TOKENS,
+      timeoutMs: SERVER_CONFIG.AI_TIMEOUT_MS,
     }),
     sensitive: true, // sensitive due to API key
     description: `AI config (${SERVER_CONFIG.AI_ENABLED ? "enabled" : "disabled"})`,
@@ -650,6 +651,7 @@ export function getDefaultConfigValue(key: ServerConfigKey): unknown {
         model: "gpt-5-mini",
         temperature: 1.0,
         maxTokens: 10000,
+        timeoutMs: 300000,
       };
     case ServerConfigKeys.VIDEO_CONFIG:
       return {

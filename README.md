@@ -305,6 +305,7 @@ These are only used when claim mapping is enabled.
 | `AI_API_KEY`     | API key for provider               | (empty)      |
 | `AI_TEMPERATURE` | Generation temperature             | `1.0`        |
 | `AI_MAX_TOKENS`  | Maximum tokens for model responses | `10000`      |
+| `AI_TIMEOUT_MS`  | Maximum time for AI response (ms)  | `300000`     |
 
 ### Optional Video + Transcription
 

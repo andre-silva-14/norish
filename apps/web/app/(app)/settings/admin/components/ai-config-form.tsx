@@ -49,6 +49,7 @@ export default function AIConfigForm({ onDirtyChange }: AIConfigFormProps) {
   const [apiKey, setApiKey] = useState("");
   const [temperature, setTemperature] = useState(aiConfig?.temperature ?? 0);
   const [maxTokens, setMaxTokens] = useState(aiConfig?.maxTokens ?? 10000);
+  const [timeoutMs, setTimeoutMs] = useState(aiConfig?.timeoutMs ?? 300000);
   const [autoTagAllergies, setAutoTagAllergies] = useState(aiConfig?.autoTagAllergies ?? true);
   const [alwaysUseAI, setAlwaysUseAI] = useState(aiConfig?.alwaysUseAI ?? false);
   const [autoTaggingMode, setAutoTaggingMode] = useState<AutoTaggingMode>(
@@ -135,6 +136,7 @@ export default function AIConfigForm({ onDirtyChange }: AIConfigFormProps) {
       setVisionModel(aiConfig.visionModel ?? "");
       setTemperature(aiConfig.temperature);
       setMaxTokens(aiConfig.maxTokens);
+      setTimeoutMs(aiConfig.timeoutMs ?? 300000);
       setAutoTagAllergies(aiConfig.autoTagAllergies ?? true);
       setAlwaysUseAI(aiConfig.alwaysUseAI ?? false);
       setAutoTaggingMode(aiConfig.autoTaggingMode ?? "disabled");
@@ -160,6 +162,7 @@ export default function AIConfigForm({ onDirtyChange }: AIConfigFormProps) {
       visionModel !== (aiConfig.visionModel ?? "") ||
       temperature !== aiConfig.temperature ||
       maxTokens !== aiConfig.maxTokens ||
+      timeoutMs !== (aiConfig.timeoutMs ?? 300000) ||
       autoTagAllergies !== (aiConfig.autoTagAllergies ?? true) ||
       alwaysUseAI !== (aiConfig.alwaysUseAI ?? false) ||
       autoTaggingMode !== (aiConfig.autoTaggingMode ?? "disabled") ||
@@ -174,6 +177,7 @@ export default function AIConfigForm({ onDirtyChange }: AIConfigFormProps) {
     visionModel,
     temperature,
     maxTokens,
+    timeoutMs,
     autoTagAllergies,
     alwaysUseAI,
     autoTaggingMode,
@@ -244,6 +248,7 @@ export default function AIConfigForm({ onDirtyChange }: AIConfigFormProps) {
         apiKey: apiKey || undefined,
         temperature,
         maxTokens,
+        timeoutMs,
         autoTagAllergies,
         alwaysUseAI,
         autoTaggingMode: autoTaggingMode as AIConfig["autoTaggingMode"],
@@ -389,6 +394,14 @@ export default function AIConfigForm({ onDirtyChange }: AIConfigFormProps) {
         type="number"
         value={maxTokens.toString()}
         onValueChange={(v) => setMaxTokens(parseInt(v) || 10000)}
+      />
+
+      <Input
+        isDisabled={!enabled}
+        label="Request Timeout (ms)"
+        type="number"
+        value={timeoutMs.toString()}
+        onValueChange={(v) => setTimeoutMs(parseInt(v) || 300000)}
       />
 
       <div className="flex items-center justify-between">
