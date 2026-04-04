@@ -179,6 +179,7 @@ describe("admin procedures", () => {
         model: "gpt-4",
         temperature: 0.7,
         maxTokens: 4096,
+        timeoutMs: 300000,
         autoTagAllergies: true,
         alwaysUseAI: false,
         autoTaggingMode: "disabled" as const,
@@ -229,6 +230,7 @@ describe("admin procedures", () => {
         model: "gpt-4",
         temperature: 0.7,
         maxTokens: 4096,
+        timeoutMs: 300000,
         autoTagAllergies: true,
         alwaysUseAI: false,
         autoTaggingMode: "disabled" as const,
@@ -358,7 +360,7 @@ describe("admin procedures", () => {
       configExists.mockImplementation((key: string) => {
         return Promise.resolve(
           key === ServerConfigKeys.AUTH_PROVIDER_OIDC ||
-            key === ServerConfigKeys.AUTH_PROVIDER_GITHUB
+          key === ServerConfigKeys.AUTH_PROVIDER_GITHUB
         );
       });
       deleteConfig.mockResolvedValue(undefined);
