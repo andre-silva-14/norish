@@ -5,6 +5,7 @@
 # dependencies
 /node_modules
 **/node_modules/
+.pnpm-store/
 /.pnp
 .pnp.js
 
@@ -79,3 +80,10 @@ docker-compose.yml
 **/dist
 
 docs/
+
+.devcontainer/.env
+
+# Ignore all folders in devcontainer except default
+.devcontainer/*/
+!.devcontainer/default/
+!.devcontainer/default/**

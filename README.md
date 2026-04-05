@@ -38,7 +38,9 @@ Norish is a real-time, household-first recipe app for planning meals, sharing gr
     - [Optional (Parsing + Content Detection)](#optional-parsing--content-detection)
     - [Optional (Scheduler + Upload Limits)](#optional-scheduler--upload-limits)
     - [Optional (Internationalization)](#optional-internationalization)
-  - [Local Development](#local-development)
+  - [Development Setup](#development-setup)
+    - [Devcontainer Development](#devcontainer-development)
+    - [Local Development](#local-development)
     - [Development Commands](#development-commands)
   - [Tech Stack](#tech-stack)
     - [Frontend](#frontend)
@@ -345,7 +347,30 @@ These are only used when claim mapping is enabled.
 
 ---
 
-## Local Development
+## Development Setup
+
+### Devcontainer Development
+
+```bash
+# Open the repository in the provided devcontainer
+# Dependencies are installed automatically via postCreateCommand
+
+# Create your environment file
+cp .env.example .env.local
+
+# Run the web app
+pnpm run dev
+
+# Run the mobile app (Expo)
+pnpm run dev:mobile
+```
+
+### Devcontainer Additional Information
+
+- The devcontainer starts the required dependency services (`db`, `redis`, and `chrome-headless`) for you, so you do not need to run `pnpm run docker:up`.
+- If you want to edit the devcontainer settings just make a copy of the default folder, all folders inside .devcontainers are untracked, except default of course.
+
+### Local Development
 
 ```bash
 # Clone the repository
