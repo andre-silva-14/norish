@@ -1,6 +1,7 @@
 "use client";
 
 import { useRouter } from "next/navigation";
+import { useTRPC } from "@/app/providers/trpc-provider";
 import { showSafeErrorToast } from "@/lib/ui/safe-error-toast";
 import { addToast } from "@heroui/react";
 import { useTranslations } from "next-intl";
@@ -9,8 +10,6 @@ import {
   createUseRecipeQuery,
   createUseRecipeSubscription,
 } from "@norish/shared-react/hooks/recipes/recipe";
-
-import { useTRPC } from "@/app/providers/trpc-provider";
 
 const useRecipeQuery = createUseRecipeQuery({ useTRPC });
 const useSharedRecipeSubscription = createUseRecipeSubscription({ useTRPC }, { useRecipeQuery });

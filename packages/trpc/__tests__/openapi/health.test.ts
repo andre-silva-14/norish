@@ -10,12 +10,10 @@ vi.mock("@norish/auth/providers", () => ({
 }));
 
 vi.mock("@norish/config/server-config-loader", () => ({
-  getLocaleConfig: vi
-    .fn()
-    .mockResolvedValue({
-      defaultLocale: "en",
-      locales: { en: { enabled: true, name: "English" } },
-    }),
+  getLocaleConfig: vi.fn().mockResolvedValue({
+    defaultLocale: "en",
+    locales: { en: { enabled: true, name: "English" } },
+  }),
   getRecurrenceConfig: vi.fn().mockResolvedValue({}),
   getTimerKeywords: vi.fn().mockResolvedValue([]),
   getUnits: vi.fn().mockResolvedValue({}),

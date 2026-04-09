@@ -21,7 +21,6 @@ import { AsyncLocalStorage } from "node:async_hooks";
 
 const STORE_KEY = Symbol.for("norish:operation-context-store");
 
- 
 const g = globalThis as any;
 const operationContextStore: AsyncLocalStorage<OperationContext> =
   g[STORE_KEY] ?? (g[STORE_KEY] = new AsyncLocalStorage<OperationContext>());

@@ -31,10 +31,7 @@ import {
   RegenerateHouseholdJoinCodeInputSchema,
   TransferHouseholdAdminInputSchema,
 } from "@norish/shared/contracts/zod";
-import {
-  HouseholdNameSchema,
-  JoinCodeSchema,
-} from "@norish/shared/lib/validation/schemas";
+import { HouseholdNameSchema, JoinCodeSchema } from "@norish/shared/lib/validation/schemas";
 
 
 import { emitConnectionInvalidation } from "../../connection-manager";

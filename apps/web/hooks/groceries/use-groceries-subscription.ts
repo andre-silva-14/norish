@@ -1,8 +1,11 @@
 "use client";
 
-import { createUseGroceriesCache, createUseGroceriesSubscription } from "@norish/shared-react/hooks/groceries";
-
 import { useTRPC } from "@/app/providers/trpc-provider";
+
+import {
+  createUseGroceriesCache,
+  createUseGroceriesSubscription,
+} from "@norish/shared-react/hooks/groceries";
 
 import { useGroceriesErrorAdapter } from "./error-adapter";
 

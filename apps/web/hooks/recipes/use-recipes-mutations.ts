@@ -1,5 +1,6 @@
 "use client";
 
+import { useTRPC } from "@/app/providers/trpc-provider";
 import { showSafeErrorToast } from "@/lib/ui/safe-error-toast";
 import { useTranslations } from "next-intl";
 
@@ -8,8 +9,6 @@ import {
   createUseRecipesCacheHelpers,
   createUseRecipesMutations,
 } from "@norish/shared-react/hooks/recipes/dashboard";
-
-import { useTRPC } from "@/app/providers/trpc-provider";
 
 const useRecipesCacheHelpers = createUseRecipesCacheHelpers({ useTRPC });
 const useSharedRecipesMutations = createUseRecipesMutations(
