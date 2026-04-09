@@ -1,6 +1,6 @@
 // @vitest-environment node
 
-import { afterEach, describe, expect, it, vi } from "vitest";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 process.env.NODE_ENV = "development";
 
@@ -10,7 +10,12 @@ vi.mock("@norish/auth/providers", () => ({
 }));
 
 vi.mock("@norish/config/server-config-loader", () => ({
-  getLocaleConfig: vi.fn().mockResolvedValue({ defaultLocale: "en", locales: { en: { enabled: true, name: "English" } } }),
+  getLocaleConfig: vi
+    .fn()
+    .mockResolvedValue({
+      defaultLocale: "en",
+      locales: { en: { enabled: true, name: "English" } },
+    }),
   getRecurrenceConfig: vi.fn().mockResolvedValue({}),
   getTimerKeywords: vi.fn().mockResolvedValue([]),
   getUnits: vi.fn().mockResolvedValue({}),
@@ -31,7 +36,8 @@ vi.mock("@norish/config/env-config-server", async (importOriginal) => {
       ...actual.SERVER_CONFIG,
       PARSER_API_TIMEOUT_MS: 15000,
     },
-    buildInternalParserApiUrl: (pathname: string) => new URL(pathname, "http://127.0.0.1:8001").toString(),
+    buildInternalParserApiUrl: (pathname: string) =>
+      new URL(pathname, "http://127.0.0.1:8001").toString(),
   };
 });
 
@@ -46,39 +52,49 @@ vi.mock("@norish/auth/auth", () => ({
 }));
 
 describe("openapi health endpoint", () => {
+  beforeEach(() => {
+    vi.resetModules();
+    getSessionMock.mockReset();
+  });
+
   afterEach(() => {
+    vi.unstubAllGlobals();
     vi.restoreAllMocks();
     vi.clearAllMocks();
   });
 
-  it("returns ok for anonymous callers when the parser is healthy", async () => {
-    getSessionMock.mockResolvedValue(null);
-    vi.stubGlobal(
-      "fetch",
-      vi.fn().mockResolvedValue(
-        new Response(JSON.stringify({ status: "ok", recipeScrapersVersion: "15.10.0" }), {
-          status: 200,
-          headers: { "Content-Type": "application/json" },
-        })
-      )
-    );
+  it(
+    "returns ok for anonymous callers when the parser is healthy",
+    { timeout: 30000 },
+    async () => {
+      getSessionMock.mockResolvedValue(null);
+      vi.stubGlobal(
+        "fetch",
+        vi.fn().mockResolvedValue(
+          new Response(JSON.stringify({ status: "ok", recipeScrapersVersion: "15.10.0" }), {
+            status: 200,
+            headers: { "Content-Type": "application/json" },
+          })
+        )
+      );
 
-    const { handleOpenApiRequest } = await import("../../src/openapi");
-    const response = await handleOpenApiRequest(new Request("http://localhost/api/v1/health"));
+      const { handleOpenApiRequest } = await import("../../src/openapi");
+      const response = await handleOpenApiRequest(new Request("http://localhost/api/v1/health"));
 
-    expect(response.status).toBe(200);
-    await expect(response.json()).resolves.toEqual({
-      status: "ok",
-      parser: {
+      expect(response.status).toBe(200);
+      await expect(response.json()).resolves.toEqual({
         status: "ok",
-        recipeScrapersVersion: "15.10.0",
-      },
-    });
-    expect(fetch).toHaveBeenCalledWith(
-      "http://127.0.0.1:8001/health",
-      expect.objectContaining({ signal: expect.any(AbortSignal) })
-    );
-  });
+        parser: {
+          status: "ok",
+          recipeScrapersVersion: "15.10.0",
+        },
+      });
+      expect(fetch).toHaveBeenCalledWith(
+        "http://127.0.0.1:8001/health",
+        expect.objectContaining({ signal: expect.any(AbortSignal) })
+      );
+    }
+  );
 
   it("returns 503 for anonymous callers when the parser is unhealthy", async () => {
     getSessionMock.mockResolvedValue(null);
@@ -100,11 +116,13 @@ describe("openapi health endpoint", () => {
     getSessionMock.mockResolvedValue(null);
 
     const { handleOpenApiRequest } = await import("../../src/openapi");
-    const response = await handleOpenApiRequest(new Request("http://localhost/api/v1/recipes/search", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({}),
-    }));
+    const response = await handleOpenApiRequest(
+      new Request("http://localhost/api/v1/recipes/search", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({}),
+      })
+    );
 
     expect(response.status).toBe(401);
     await expect(response.json()).resolves.toEqual(

@@ -1,6 +1,7 @@
+import type { CreateRatingsHooksOptions } from "./types";
+
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 
-import type { CreateRatingsHooksOptions } from "./types";
 import { shouldPreserveOptimisticUpdate as preserveOptimisticUpdate } from "../optimistic-updates";
 
 type UserRatingData = { recipeId: string; userRating: number | null; version: number | null };
@@ -64,6 +65,7 @@ export function createUseRatingsMutation({
 
           if (context?.averageRatingQueryKey) {
             queryClient.invalidateQueries({ queryKey: context.averageRatingQueryKey });
+
             return;
           }
 

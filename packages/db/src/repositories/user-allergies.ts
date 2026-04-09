@@ -1,5 +1,4 @@
 import { and, eq, inArray, sql } from "drizzle-orm";
-
 import { db } from "@norish/db/drizzle";
 import { tags, userAllergies, users } from "@norish/db/schema";
 
@@ -55,6 +54,7 @@ export async function updateUserAllergies(
 ): Promise<{ applied: boolean; version: number; stale: boolean }> {
   return await db.transaction(async (tx) => {
     const nextVersion = currentVersion === 0 ? 2 : currentVersion + 1;
+
     if (currentVersion === 0) {
       const [userRow, existingAllergy] = await Promise.all([
         tx.select({ version: users.version }).from(users).where(eq(users.id, userId)).limit(1),

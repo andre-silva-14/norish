@@ -1,6 +1,10 @@
 "use client";
 
-import { sharedRecipeFamilyHooks } from "./shared-recipe-hooks";
+import { createUseRecipeImages } from "@norish/shared-react/hooks/recipes/recipe";
+
+import { useTRPC } from "@/app/providers/trpc-provider";
+
+const useSharedRecipeImages = createUseRecipeImages({ useTRPC });
 
 export type RecipeImagesResult = {
   uploadImage: (file: File) => Promise<{ success: boolean; url?: string; error?: string }>;
@@ -48,7 +52,7 @@ export function useRecipeImages(): RecipeImagesResult {
     isDeletingStepImage,
     isUploadingGalleryImage,
     isDeletingGalleryImage,
-  } = sharedRecipeFamilyHooks.useRecipeImages();
+  } = useSharedRecipeImages();
 
   const uploadImage = async (file: File) => {
     const formData = new FormData();

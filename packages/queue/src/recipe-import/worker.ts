@@ -6,9 +6,9 @@
  */
 
 import type { Job } from "bullmq";
-
 import type { RecipeImportJobData } from "@norish/queue/contracts/job-types";
 import type { PolicyEmitContext } from "@norish/trpc/helpers";
+
 import { getAIConfig, getRecipePermissionPolicy } from "@norish/config/server-config-loader";
 import {
   createRecipeWithRefs,
@@ -18,6 +18,7 @@ import {
 } from "@norish/db";
 import { getDecryptedTokensByUserId } from "@norish/db/repositories/site-auth-tokens";
 import { addAllergyDetectionJob } from "@norish/queue/allergy-detection/producer";
+import { requireQueueApiHandler } from "@norish/queue/api-handlers";
 import { addAutoCategorizationJob } from "@norish/queue/auto-categorization/producer";
 import { addAutoTaggingJob } from "@norish/queue/auto-tagging/producer";
 import { getBullClient } from "@norish/queue/redis/bullmq";
@@ -27,7 +28,6 @@ import { deleteRecipeImagesDir } from "@norish/shared-server/media/storage";
 import { emitByPolicy } from "@norish/trpc/helpers";
 import { recipeEmitter } from "@norish/trpc/routers/recipes/emitter";
 
-import { requireQueueApiHandler } from "@norish/queue/api-handlers";
 import {
   baseWorkerOptions,
   QUEUE_NAMES,

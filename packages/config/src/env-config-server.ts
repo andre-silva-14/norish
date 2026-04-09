@@ -1,5 +1,6 @@
 import fs from "node:fs";
 import path from "node:path";
+
 import { config } from "dotenv";
 import { z } from "zod";
 
@@ -232,8 +233,7 @@ const ServerConfigSchema = z.object({
 export type ServerConfig = z.infer<typeof ServerConfigSchema>;
 export const INTERNAL_PARSER_API_HOST = "127.0.0.1";
 export const INTERNAL_PARSER_API_PORT = 8001;
-export const INTERNAL_PARSER_API_URL =
-  `http://${INTERNAL_PARSER_API_HOST}:${INTERNAL_PARSER_API_PORT}`;
+export const INTERNAL_PARSER_API_URL = `http://${INTERNAL_PARSER_API_HOST}:${INTERNAL_PARSER_API_PORT}`;
 
 export function buildInternalParserApiUrl(pathname: string): string {
   return new URL(pathname, INTERNAL_PARSER_API_URL).toString();

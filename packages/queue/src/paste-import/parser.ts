@@ -1,23 +1,24 @@
-import { randomUUID } from "crypto";
-
 import type { FullRecipeInsertDTO } from "@norish/shared/contracts";
 import type { MeasurementSystem } from "@norish/shared/contracts/dto/recipe";
+import type { PasteImportJobData, StructuredPasteImportRecipe } from "../contracts/job-types";
+
+import { randomUUID } from "crypto";
+
+import YAML from "yaml";
 import { getUnits } from "@norish/config/server-config-loader";
+import { requireQueueApiHandler } from "@norish/queue/api-handlers";
 import { MAX_RECIPE_PASTE_CHARS } from "@norish/shared/contracts/uploads";
 import { inferSystemUsedFromParsed } from "@norish/shared/lib/determine-recipe-system";
 import {
+  hasRecipeNameIngredientsAndSteps,
   isUrl,
   parseIngredientWithDefaults,
   parseIsoDuration,
   parseJsonWithRepair,
-  hasRecipeNameIngredientsAndSteps,
   stripHtmlTags,
 } from "@norish/shared/lib/helpers";
 import { normalizeUnit } from "@norish/shared/lib/unit-localization";
-import YAML from "yaml";
 
-import { requireQueueApiHandler } from "@norish/queue/api-handlers";
-import type { PasteImportJobData, StructuredPasteImportRecipe } from "../contracts/job-types";
 
 export const MAX_STRUCTURED_PASTE_RECIPES = 25;
 
@@ -137,7 +138,8 @@ function normalizeMediaEntries(
           ? { image: url, order: index }
           : {
               video: url,
-              thumbnail: typeof record.thumbnail === "string" ? record.thumbnail.trim() || null : null,
+              thumbnail:
+                typeof record.thumbnail === "string" ? record.thumbnail.trim() || null : null,
               duration: toFiniteNumber(record.duration),
               order: index,
             };
@@ -203,19 +205,25 @@ async function normalizeRecipeFromYamlValue(
     order: index,
   }));
 
-  const images = normalizeMediaEntries(rawRecipe.images ?? rawRecipe.image, "image").map((entry) => ({
-    image: String(entry.image),
-    order: Number(entry.order ?? 0),
-  }));
-  const videos = normalizeMediaEntries(rawRecipe.videos ?? rawRecipe.video, "video").map((entry) => ({
-    video: String(entry.video),
-    thumbnail: typeof entry.thumbnail === "string" ? entry.thumbnail : null,
-    duration: toFiniteNumber(entry.duration),
-    order: Number(entry.order ?? 0),
-  }));
+  const images = normalizeMediaEntries(rawRecipe.images ?? rawRecipe.image, "image").map(
+    (entry) => ({
+      image: String(entry.image),
+      order: Number(entry.order ?? 0),
+    })
+  );
+  const videos = normalizeMediaEntries(rawRecipe.videos ?? rawRecipe.video, "video").map(
+    (entry) => ({
+      video: String(entry.video),
+      thumbnail: typeof entry.thumbnail === "string" ? entry.thumbnail : null,
+      duration: toFiniteNumber(entry.duration),
+      order: Number(entry.order ?? 0),
+    })
+  );
 
   const nutrition =
-    rawRecipe.nutrition && typeof rawRecipe.nutrition === "object" && !Array.isArray(rawRecipe.nutrition)
+    rawRecipe.nutrition &&
+    typeof rawRecipe.nutrition === "object" &&
+    !Array.isArray(rawRecipe.nutrition)
       ? (rawRecipe.nutrition as Record<string, unknown>)
       : {};
 
@@ -227,39 +235,41 @@ async function normalizeRecipeFromYamlValue(
       title.length === 0
         ? null
         : {
-          id: randomUUID(),
-          name: title,
-          description:
-            typeof rawRecipe.description === "string"
-              ? stripHtmlTags(rawRecipe.description).trim() || null
-              : null,
-          notes:
-            typeof rawRecipe.notes === "string" ? stripHtmlTags(rawRecipe.notes).trim() || null : null,
-          url:
-            typeof rawRecipe.sourceUrl === "string" && isUrl(rawRecipe.sourceUrl)
-              ? rawRecipe.sourceUrl.trim()
-              : null,
-          image: images[0]?.image ?? null,
-          servings: normalizeMinutes(rawRecipe.servings) ?? 1,
-          prepMinutes: normalizeMinutes(rawRecipe.prepMinutes),
-          cookMinutes: normalizeMinutes(rawRecipe.cookMinutes),
-          totalMinutes: normalizeMinutes(rawRecipe.totalMinutes),
-          calories: toFiniteNumber(nutrition.kcal ?? nutrition.calories),
-          fat: toNutritionText(nutrition.fat),
-          carbs: toNutritionText(nutrition.carbs),
-          protein: toNutritionText(nutrition.protein),
-          systemUsed,
-          steps: normalizedSteps.map((step, index) => ({
-            step,
-            order: index + 1,
+            id: randomUUID(),
+            name: title,
+            description:
+              typeof rawRecipe.description === "string"
+                ? stripHtmlTags(rawRecipe.description).trim() || null
+                : null,
+            notes:
+              typeof rawRecipe.notes === "string"
+                ? stripHtmlTags(rawRecipe.notes).trim() || null
+                : null,
+            url:
+              typeof rawRecipe.sourceUrl === "string" && isUrl(rawRecipe.sourceUrl)
+                ? rawRecipe.sourceUrl.trim()
+                : null,
+            image: images[0]?.image ?? null,
+            servings: normalizeMinutes(rawRecipe.servings) ?? 1,
+            prepMinutes: normalizeMinutes(rawRecipe.prepMinutes),
+            cookMinutes: normalizeMinutes(rawRecipe.cookMinutes),
+            totalMinutes: normalizeMinutes(rawRecipe.totalMinutes),
+            calories: toFiniteNumber(nutrition.kcal ?? nutrition.calories),
+            fat: toNutritionText(nutrition.fat),
+            carbs: toNutritionText(nutrition.carbs),
+            protein: toNutritionText(nutrition.protein),
             systemUsed,
-          })),
-          recipeIngredients,
-          tags: normalizeYamlTags(rawRecipe.tags),
-          categories: parseCategories(rawRecipe.categories),
-          images,
-          videos,
-        },
+            steps: normalizedSteps.map((step, index) => ({
+              step,
+              order: index + 1,
+              systemUsed,
+            })),
+            recipeIngredients,
+            tags: normalizeYamlTags(rawRecipe.tags),
+            categories: parseCategories(rawRecipe.categories),
+            images,
+            videos,
+          },
   };
 }
 
@@ -272,11 +282,8 @@ async function normalizeStructuredRecipes(
   const normalized = await Promise.all(rawRecipes.map(({ node }) => normalizer(node)));
 
   return normalized
-    .filter(
-      (
-        entry
-      ): entry is { recipe: FullRecipeInsertDTO; importedRating: number | null } =>
-        hasRecipeNameIngredientsAndSteps(entry.recipe)
+    .filter((entry): entry is { recipe: FullRecipeInsertDTO; importedRating: number | null } =>
+      hasRecipeNameIngredientsAndSteps(entry.recipe)
     )
     .map((entry) => ({
       recipeId: randomUUID(),
@@ -337,7 +344,8 @@ async function parseStructuredYaml(text: string): Promise<StructuredPasteImportR
 
   const rawRecipes = Array.isArray(parsedYaml) ? parsedYaml : [parsedYaml];
   const recipeMappings = rawRecipes.filter(
-    (entry): entry is Record<string, unknown> => !!entry && typeof entry === "object" && !Array.isArray(entry)
+    (entry): entry is Record<string, unknown> =>
+      !!entry && typeof entry === "object" && !Array.isArray(entry)
   );
 
   if (recipeMappings.length === 0) {
@@ -356,7 +364,10 @@ async function parseStructuredYaml(text: string): Promise<StructuredPasteImportR
   );
 }
 
-export async function preparePasteImport(text: string, forceAI?: boolean): Promise<PreparedPasteImport> {
+export async function preparePasteImport(
+  text: string,
+  forceAI?: boolean
+): Promise<PreparedPasteImport> {
   const trimmed = text.trim();
 
   if (!trimmed) {

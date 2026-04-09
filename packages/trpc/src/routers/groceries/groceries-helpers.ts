@@ -1,7 +1,7 @@
+import type { GroceryDto, GroceryUpdateDto } from "@norish/shared/contracts";
+
 import { TRPCError } from "@trpc/server";
 import { z } from "zod";
-
-import type { GroceryDto, GroceryUpdateDto } from "@norish/shared/contracts";
 import { assertHouseholdAccess } from "@norish/auth/permissions";
 import {
   assignGroceryToStore,
@@ -363,6 +363,7 @@ export async function assignGroceryToStoreData(
       { userId: ctx.user.id, groceryId, storeId, version },
       "Ignoring stale grocery assign-to-store mutation"
     );
+
     return null;
   }
 

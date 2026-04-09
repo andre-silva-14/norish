@@ -5,12 +5,19 @@ import { showSafeErrorToast } from "@/lib/ui/safe-error-toast";
 import { addToast } from "@heroui/react";
 import { useTranslations } from "next-intl";
 
-import { sharedRecipeFamilyHooks } from "./shared-recipe-hooks";
+import {
+  createUseRecipeQuery,
+  createUseRecipeSubscription,
+} from "@norish/shared-react/hooks/recipes/recipe";
+
+import { useTRPC } from "@/app/providers/trpc-provider";
+
+const useRecipeQuery = createUseRecipeQuery({ useTRPC });
+const useSharedRecipeSubscription = createUseRecipeSubscription({ useTRPC }, { useRecipeQuery });
 
 export function useRecipeSubscription(recipeId: string | null) {
   const tErrors = useTranslations("common.errors");
   const router = useRouter();
-  const useSharedRecipeSubscription = sharedRecipeFamilyHooks.useRecipeSubscription;
 
   useSharedRecipeSubscription(recipeId, {
     onConverted: (rawPayload) => {

@@ -1,11 +1,11 @@
+import type { UnitsMap } from "@norish/config/zod/server-config";
+import type { FullRecipeInsertDTO } from "@norish/shared/contracts/dto/recipe";
+
 import { decode } from "html-entities";
 import { jsonrepair } from "jsonrepair";
 import { parseIngredient } from "parse-ingredient";
-
-import type { UnitsMap } from "@norish/config/zod/server-config";
 import { httpUrlSchema } from "@norish/shared/lib/schema";
 import { flattenForLibrary } from "@norish/shared/lib/unit-localization";
-import type { FullRecipeInsertDTO } from "@norish/shared/contracts/dto/recipe";
 
 export function stripHtmlTags(input: string): string {
   // 1. Remove HTML tags first (replace with space to preserve word boundaries)
@@ -110,10 +110,10 @@ export function hasRecipeNameIngredientsAndSteps(
 ): recipe is FullRecipeInsertDTO {
   return Boolean(
     recipe?.name?.trim() &&
-      Array.isArray(recipe.recipeIngredients) &&
-      recipe.recipeIngredients.length > 0 &&
-      Array.isArray(recipe.steps) &&
-      recipe.steps.length > 0
+    Array.isArray(recipe.recipeIngredients) &&
+    recipe.recipeIngredients.length > 0 &&
+    Array.isArray(recipe.steps) &&
+    recipe.steps.length > 0
   );
 }
 

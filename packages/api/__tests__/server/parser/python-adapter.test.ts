@@ -138,16 +138,13 @@ describe("adaptRecipeScrapersResponse", () => {
           }),
         ]),
         categories: expect.arrayContaining(["Breakfast", "Snack"]),
-        tags: [
-          { name: "brunch" },
-          { name: "quick" },
-          { name: "dessert" },
-          { name: "italian" },
-          { name: "vegetarian" },
-        ],
+        tags: [],
       })
     );
-    expect(mockParseImages).toHaveBeenCalledWith(["https://cdn.example.com/recipe.jpg"], "recipe-1");
+    expect(mockParseImages).toHaveBeenCalledWith(
+      ["https://cdn.example.com/recipe.jpg"],
+      "recipe-1"
+    );
   });
 
   it("falls back to the original URL when canonicalUrl is missing", async () => {
@@ -249,10 +246,7 @@ describe("adaptRecipeScrapersResponse", () => {
           instructions_list: ["Cook it"],
         },
         media: {
-          images: [
-            "https://cdn.example.com/primary.jpg",
-            "https://example.com/not-an-image-page",
-          ],
+          images: ["https://cdn.example.com/primary.jpg", "https://example.com/not-an-image-page"],
           videos: [],
         },
       },

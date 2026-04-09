@@ -4,14 +4,14 @@ import { generateTagsForRecipe } from "@norish/api/ai/auto-tagger";
 import { extractRecipeFromImages } from "@norish/api/ai/image-recipe-parser";
 import { estimateNutritionFromIngredients } from "@norish/api/ai/nutrition-estimator";
 import { extractRecipeWithAI } from "@norish/api/ai/recipe-parser";
-import { deletePlannedItem, syncPlannedItem, truncateErrorMessage } from "@norish/api/caldav/sync-manager";
+import {
+  deletePlannedItem,
+  syncPlannedItem,
+  truncateErrorMessage,
+} from "@norish/api/caldav/sync-manager";
 import { parseRecipeFromUrl } from "@norish/api/parser";
 import { extractRecipeNodesFromJsonValue } from "@norish/api/parser/jsonld";
-import {
-  normalizeRecipeFromJson,
-  parseCategories,
-  parseTags,
-} from "@norish/api/parser/normalize";
+import { normalizeRecipeFromJson, parseCategories, parseTags } from "@norish/api/parser/normalize";
 import {
   cleanupOrphanedAvatars,
   cleanupOrphanedImages,

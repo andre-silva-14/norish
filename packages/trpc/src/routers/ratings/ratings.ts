@@ -10,6 +10,7 @@ import { RatingGetInputSchema, RatingInputSchema } from "@norish/shared/contract
 import { emitByPolicy } from "../../helpers";
 import { authedProcedure } from "../../middleware";
 import { router } from "../../trpc";
+
 import { ratingsEmitter } from "./emitter";
 
 interface UserContext {
@@ -38,6 +39,7 @@ const rate = authedProcedure.input(RatingInputSchema).mutation(({ ctx, input }) 
     .then(async (result) => {
       if (result.stale) {
         log.info({ userId: ctx.user.id, recipeId, version }, "Ignoring stale rating mutation");
+
         return;
       }
 

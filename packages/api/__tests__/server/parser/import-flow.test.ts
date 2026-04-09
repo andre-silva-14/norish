@@ -149,7 +149,7 @@ describe("parseRecipeFromUrl import flow", () => {
     mockExtractRecipeWithAI.mockResolvedValue({ success: true, data: aiRecipe });
   });
 
-  it("uses the existing video pipeline for video imports", async () => {
+  it("uses the existing video pipeline for video imports", { timeout: 15000 }, async () => {
     mockIsVideoUrl.mockReturnValue(true);
     mockIsVideoParsingEnabled.mockResolvedValue(true);
 

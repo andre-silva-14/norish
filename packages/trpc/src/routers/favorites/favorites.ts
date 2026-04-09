@@ -23,6 +23,7 @@ const toggle = authedProcedure.input(FavoriteSetInputSchema).mutation(async ({ c
 
   if (result.stale) {
     log.info({ userId: ctx.user.id, recipeId, version }, "Ignoring stale favorite mutation");
+
     return { recipeId, isFavorite: desiredState, stale: true };
   }
 

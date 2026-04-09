@@ -4,12 +4,21 @@ import Link from "next/link";
 import { addToast, Button } from "@heroui/react";
 import { useTranslations } from "next-intl";
 
-import { sharedDashboardRecipeHooks } from "./shared-recipe-hooks";
+import {
+  createUseRecipesCacheHelpers,
+  createUseRecipesSubscription,
+} from "@norish/shared-react/hooks/recipes/dashboard";
+
+import { useTRPC } from "@/app/providers/trpc-provider";
+
+const useRecipesCacheHelpers = createUseRecipesCacheHelpers({ useTRPC });
+const useSharedRecipesSubscription = createUseRecipesSubscription(
+  { useTRPC },
+  { useRecipesCacheHelpers }
+);
 
 export function useRecipesSubscription() {
   const t = useTranslations("recipes.toasts");
-
-  const useSharedRecipesSubscription = sharedDashboardRecipeHooks.useRecipesSubscription;
 
   useSharedRecipesSubscription({
     onImported: (rawPayload) => {

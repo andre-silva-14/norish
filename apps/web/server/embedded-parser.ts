@@ -1,14 +1,15 @@
-import { spawn, type ChildProcess } from "node:child_process";
+import { spawn } from "node:child_process";
 import { existsSync } from "node:fs";
 import { resolve } from "node:path";
 import { createInterface } from "node:readline";
+import type { ChildProcess } from "node:child_process";
 
+import type { ServerConfig } from "@norish/config/env-config-server";
 import {
   buildInternalParserApiUrl,
   INTERNAL_PARSER_API_HOST,
   INTERNAL_PARSER_API_PORT,
   INTERNAL_PARSER_API_URL,
-  type ServerConfig,
 } from "@norish/config/env-config-server";
 import { parserLogger as log } from "@norish/shared-server/logger";
 
@@ -66,9 +67,7 @@ function resolveParserAppDir(): string {
     }
   }
 
-  throw new Error(
-    `Embedded parser runtime was not found. Checked: ${candidates.join(", ")}`
-  );
+  throw new Error(`Embedded parser runtime was not found. Checked: ${candidates.join(", ")}`);
 }
 
 function streamParserLogs(child: ChildProcess): void {
@@ -130,7 +129,10 @@ export async function startEmbeddedParser(
     args.push("--reload");
   }
 
-  log.info({ parserApiUrl: INTERNAL_PARSER_API_URL, pythonExecutable }, "Starting embedded parser API");
+  log.info(
+    { parserApiUrl: INTERNAL_PARSER_API_URL, pythonExecutable },
+    "Starting embedded parser API"
+  );
 
   const child = spawn(pythonExecutable, args, {
     cwd: parserAppDir,

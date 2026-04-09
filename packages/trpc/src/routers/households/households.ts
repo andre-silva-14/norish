@@ -1,10 +1,11 @@
-import { TRPCError } from "@trpc/server";
-import { z } from "zod";
-
 import type {
   HouseholdAdminSettingsDto,
   HouseholdSettingsDto,
 } from "@norish/shared/contracts/dto/household";
+import type { HouseholdUserInfo } from "./types";
+
+import { TRPCError } from "@trpc/server";
+import { z } from "zod";
 import { getRecipePermissionPolicy } from "@norish/config/server-config-loader";
 import {
   addUserToHousehold,
@@ -33,15 +34,14 @@ import {
 import {
   HouseholdNameSchema,
   JoinCodeSchema,
-  UserIdSchema,
-  UUIDSchema,
 } from "@norish/shared/lib/validation/schemas";
 
-import type { HouseholdUserInfo } from "./types";
+
 import { emitConnectionInvalidation } from "../../connection-manager";
 import { authedProcedure } from "../../middleware";
 import { router } from "../../trpc";
 import { permissionsEmitter } from "../permissions/emitter";
+
 import { householdEmitter } from "./emitter";
 
 /**
@@ -285,6 +285,7 @@ const leave = authedProcedure.input(LeaveHouseholdInputSchema).mutation(async ({
           { userId: ctx.user.id, householdId, version },
           "Ignoring stale household leave mutation"
         );
+
         return;
       }
 
@@ -358,6 +359,7 @@ const kick = authedProcedure
             { userId: ctx.user.id, householdId, userIdToKick, version },
             "Ignoring stale household kick mutation"
           );
+
           return;
         }
 
@@ -417,10 +419,12 @@ const regenerateCode = authedProcedure
             { userId: ctx.user.id, householdId, version },
             "Ignoring stale household join-code regeneration"
           );
+
           return;
         }
 
         const household = result.value;
+
         log.info({ userId: ctx.user.id, householdId }, "Join code regenerated");
 
         // Emit to all household members
@@ -472,10 +476,12 @@ const transferAdmin = authedProcedure
             { userId: ctx.user.id, householdId, newAdminId, version },
             "Ignoring stale household admin transfer"
           );
+
           return;
         }
 
         const household = result.value;
+
         log.info({ userId: ctx.user.id, householdId, newAdminId }, "Admin transferred");
 
         // Emit to all household members

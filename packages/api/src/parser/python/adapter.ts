@@ -1,16 +1,16 @@
-import { getUnits } from "@norish/config/server-config-loader";
-import { parserLogger as log } from "@norish/shared-server/logger";
 import type { RecipeCategory } from "@norish/shared/contracts";
 import type { FullRecipeInsertDTO } from "@norish/shared/contracts/dto/recipe";
+import type { RecipeScrapersParserSuccess } from "./contract";
 
-import { extractNutrition } from "@norish/api/parser/parsers/nutrition";
-import { getServings } from "@norish/api/parser/parsers/metadata";
 import { parseImages } from "@norish/api/parser/parsers/images";
 import { parseIngredients } from "@norish/api/parser/parsers/ingredients";
+import { getServings } from "@norish/api/parser/parsers/metadata";
+import { extractNutrition } from "@norish/api/parser/parsers/nutrition";
 import { parseSteps } from "@norish/api/parser/parsers/steps";
 import { parseVideos } from "@norish/api/parser/parsers/videos";
+import { getUnits } from "@norish/config/server-config-loader";
+import { parserLogger as log } from "@norish/shared-server/logger";
 
-import type { RecipeScrapersParserSuccess } from "./contract";
 
 type ScraperRecipe = RecipeScrapersParserSuccess["recipe"];
 type EmbeddedVideo = RecipeScrapersParserSuccess["media"]["videos"][number];
@@ -19,6 +19,7 @@ function normalizeString(value: unknown): string | undefined {
   if (typeof value !== "string") return undefined;
 
   const trimmed = value.trim();
+
   return trimmed || undefined;
 }
 
@@ -30,6 +31,7 @@ function normalizeStringList(value: unknown): string[] {
   }
 
   const single = normalizeString(value);
+
   return single ? [single] : [];
 }
 
@@ -39,6 +41,7 @@ function normalizeDelimitedStrings(value: unknown): string[] {
   }
 
   const single = normalizeString(value);
+
   if (!single) return [];
 
   return single
@@ -49,6 +52,7 @@ function normalizeDelimitedStrings(value: unknown): string[] {
 
 function collectIngredientStrings(recipe: ScraperRecipe): string[] {
   const direct = normalizeStringList(recipe.ingredients);
+
   if (direct.length > 0) return direct;
 
   const groups = Array.isArray(recipe.ingredient_groups) ? recipe.ingredient_groups : [];
@@ -56,6 +60,7 @@ function collectIngredientStrings(recipe: ScraperRecipe): string[] {
   return groups.flatMap((group) => {
     if (!group || typeof group !== "object") return [];
     const ingredients = (group as { ingredients?: unknown }).ingredients;
+
     return normalizeStringList(ingredients);
   });
 }
@@ -68,9 +73,11 @@ function collectInstructionSource(recipe: ScraperRecipe): unknown {
   }
 
   const list = normalizeStringList(recipe.instructions_list);
+
   if (list.length > 0) return list;
 
   const instructions = normalizeString(recipe.instructions);
+
   if (!instructions) return [];
 
   return instructions
@@ -103,6 +110,7 @@ function normalizeTags(recipe: ScraperRecipe): { name: string }[] {
     .filter((tag) => {
       if (seen.has(tag)) return false;
       seen.add(tag);
+
       return true;
     })
     .map((name) => ({ name }));
@@ -137,6 +145,7 @@ function mapCategories(recipe: ScraperRecipe): RecipeCategory[] {
 
   for (const value of values) {
     const category = categoryMap[value];
+
     category && categories.add(category);
   }
 
@@ -153,7 +162,8 @@ function buildNutrition(recipe: ScraperRecipe) {
         (nutrition as Record<string, unknown>).calories ??
         (nutrition as Record<string, unknown>).calorieContent,
       fatContent:
-        (nutrition as Record<string, unknown>).fatContent ?? (nutrition as Record<string, unknown>).fat,
+        (nutrition as Record<string, unknown>).fatContent ??
+        (nutrition as Record<string, unknown>).fat,
       carbohydrateContent:
         (nutrition as Record<string, unknown>).carbohydrateContent ??
         (nutrition as Record<string, unknown>).carbs,

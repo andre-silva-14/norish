@@ -45,6 +45,7 @@ const update = authedProcedure
         { userId: ctx.user.id, tokenId: input.id, version: input.version },
         "Ignoring stale site auth token update"
       );
+
       return { stale: true };
     }
 
@@ -64,6 +65,7 @@ const remove = authedProcedure
         { userId: ctx.user.id, tokenId: input.id, version: input.version },
         "Ignoring stale site auth token delete"
       );
+
       return { success: true, stale: true };
     }
 

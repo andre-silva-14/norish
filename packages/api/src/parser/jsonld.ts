@@ -3,7 +3,6 @@
  * JSON-LD helpers: scan HTML, collect structured data, and return Recipe nodes.
  */
 import * as cheerio from "cheerio";
-
 import { normalizeRecipeFromJson } from "@norish/api/parser/normalize";
 import { parserLogger as log } from "@norish/shared-server/logger";
 import { FullRecipeInsertDTO } from "@norish/shared/contracts/dto/recipe";
@@ -108,6 +107,7 @@ export function extractRecipeNodesFromJsonLd(htmlContent: string) {
     try {
       const scriptContent = $(element).html() || "{}";
       const parsedJson = parseJsonWithRepair(scriptContent);
+
       recipeNodes.push(...extractRecipeNodesFromJsonValue(parsedJson));
     } catch (parseErr) {
       // JSON-LD parsing can fail on malformed data, log but continue

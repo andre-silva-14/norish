@@ -1,8 +1,8 @@
 import type { FullRecipeInsertDTO } from "@norish/shared/contracts/dto/recipe";
-import { hasRecipeNameIngredientsAndSteps } from "@norish/shared/lib/helpers";
 
 import { tryExtractRecipeFromJsonLd } from "@norish/api/parser/jsonld";
 import { tryExtractRecipeFromMicrodata } from "@norish/api/parser/microdata";
+import { hasRecipeNameIngredientsAndSteps } from "@norish/shared/lib/helpers";
 
 /**
  * @deprecated Temporary rollback path for the legacy JSON-LD and microdata parser.

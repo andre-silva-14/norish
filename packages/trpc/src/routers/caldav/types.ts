@@ -1,6 +1,4 @@
 import { z } from "zod";
-
-import type { UserCaldavConfigWithoutPasswordDto } from "@norish/shared/contracts";
 import {
   CaldavConfigSavedEventSchema,
   CaldavInitialSyncCompleteEventSchema,

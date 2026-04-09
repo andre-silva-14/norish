@@ -1,7 +1,7 @@
+import type { RecipeListContext } from "@norish/db";
+
 import { TRPCError } from "@trpc/server";
 import { z } from "zod";
-
-import type { RecipeListContext } from "@norish/db";
 import { canAccessResource, isAIEnabled as checkAIEnabled } from "@norish/auth/permissions";
 import { getRecipePermissionPolicy } from "@norish/config/server-config-loader";
 import {
@@ -44,6 +44,7 @@ import { FullRecipeSchema, RecipeListResultSchema } from "@norish/shared/contrac
 import { emitByPolicy } from "../../helpers";
 import { authedProcedure } from "../../middleware";
 import { router } from "../../trpc";
+
 import { recipeEmitter } from "./emitter";
 import { assertRecipeAccess, findRecipeForViewer, handleRecipeError } from "./helpers";
 import {
@@ -201,6 +202,7 @@ const update = authedProcedure.input(RecipeUpdateInputSchema).mutation(({ ctx, i
 
       if (result.stale) {
         log.info({ userId: ctx.user.id, recipeId: id, version }, "Ignoring stale recipe update");
+
         return;
       }
 
@@ -246,6 +248,7 @@ const updateCategories = authedProcedure
         { userId: ctx.user.id, recipeId: input.recipeId, version: input.version },
         "Ignoring stale recipe category update"
       );
+
       return { success: true, stale: true };
     }
 
@@ -280,6 +283,7 @@ const deleteProcedure = authedProcedure
 
         if (result.stale) {
           log.info({ userId: ctx.user.id, recipeId: id, version }, "Ignoring stale recipe delete");
+
           return;
         }
 
@@ -412,6 +416,7 @@ const convertMeasurements = authedProcedure
                 { userId: ctx.user.id, recipeId, version },
                 "Ignoring stale recipe conversion"
               );
+
               return null;
             }
 

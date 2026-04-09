@@ -1,15 +1,14 @@
 // @vitest-environment node
 
 import type { Job } from "bullmq";
-
 import { afterAll, beforeAll, beforeEach, describe, expect, it, vi } from "vitest";
 
 import { getRecipeFull } from "@norish/db";
 import { getAverageRating, getUserRatingWithVersion } from "@norish/db/repositories/ratings";
 
 import type { PasteImportJobData } from "../../src/contracts/job-types";
-import { processPasteImportJob } from "../../src/paste-import/worker";
 import { RepositoryTestBase } from "../../../db/__tests__/helpers/repository-test-base";
+import { processPasteImportJob } from "../../src/paste-import/worker";
 
 const mocked = vi.hoisted(() => ({
   addAutoTaggingJob: vi.fn(),
@@ -79,10 +78,7 @@ describe("processPasteImportJob integration", () => {
       opts: {},
       data: {
         batchId: "batch-integration-1",
-        recipeIds: [
-          "123e4567-e89b-42d3-a456-426614174001",
-          "123e4567-e89b-42d3-a456-426614174002",
-        ],
+        recipeIds: ["123e4567-e89b-42d3-a456-426614174001", "123e4567-e89b-42d3-a456-426614174002"],
         userId,
         householdKey: "household-test",
         householdUserIds: [userId],
@@ -163,10 +159,7 @@ describe("processPasteImportJob integration", () => {
     } as Job<PasteImportJobData>);
 
     expect(result).toEqual({
-      recipeIds: [
-        "123e4567-e89b-42d3-a456-426614174001",
-        "123e4567-e89b-42d3-a456-426614174002",
-      ],
+      recipeIds: ["123e4567-e89b-42d3-a456-426614174001", "123e4567-e89b-42d3-a456-426614174002"],
     });
 
     const firstRecipe = await getRecipeFull("123e4567-e89b-42d3-a456-426614174001");

@@ -1,13 +1,13 @@
 import type { Job } from "bullmq";
-import { Worker } from "bullmq";
 
+import { Worker } from "bullmq";
+import { requireQueueApiHandler } from "@norish/queue/api-handlers";
 import { getBullClient } from "@norish/queue/redis/bullmq";
 import { cleanupOldCalendarData } from "@norish/queue/scheduler/old-calendar-cleanup";
 import { cleanupOldGroceries } from "@norish/queue/scheduler/old-groceries-cleanup";
 import { checkRecurringGroceries } from "@norish/queue/scheduler/recurring-grocery-check";
 import { createLogger } from "@norish/shared-server/logger";
 
-import { requireQueueApiHandler } from "@norish/queue/api-handlers";
 import { baseWorkerOptions, QUEUE_NAMES, STALLED_INTERVAL, WORKER_CONCURRENCY } from "../config";
 
 const log = createLogger("worker:scheduled-tasks");

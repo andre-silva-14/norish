@@ -1,13 +1,17 @@
 "use client";
 
-import { sharedDashboardRecipeHooks } from "@/hooks/recipes/shared-recipe-hooks";
 import { showSafeErrorToast } from "@/lib/ui/safe-error-toast";
 import { useTranslations } from "next-intl";
+import { createUseRatingsSubscription } from "@norish/shared-react/hooks/recipes/dashboard";
+
+import { useTRPC } from "@/app/providers/trpc-provider";
+
+const useSharedRatingsSubscription = createUseRatingsSubscription({ useTRPC });
 
 export function useRatingsSubscription() {
   const tErrors = useTranslations("common.errors");
 
-  sharedDashboardRecipeHooks.useRatingsSubscription({
+  useSharedRatingsSubscription({
     onRatingFailed: ({ recipeId, reason }) => {
       showSafeErrorToast({
         title: tErrors("operationFailed"),

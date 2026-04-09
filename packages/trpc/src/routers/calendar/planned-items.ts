@@ -1,10 +1,10 @@
-import { TRPCError } from "@trpc/server";
-import { z } from "zod";
-
 import type {
   PlannedItemWithRecipePayload,
   SlotItemSortUpdate,
 } from "@norish/shared/contracts/zod";
+
+import { TRPCError } from "@trpc/server";
+import { z } from "zod";
 import { assertHouseholdAccess } from "@norish/auth/permissions";
 import {
   getPlannedItemById,
@@ -23,9 +23,9 @@ import { dateKey, endOfMonth, startOfMonth } from "@norish/shared/lib/helpers";
 
 import { authedProcedure } from "../../middleware";
 import { router } from "../../trpc";
+
 import { calendarEmitter } from "./emitter";
 import {
-  buildPlannedItemPayload,
   createCalendarItem,
   deleteCalendarItem,
   endOfServerWeek,
@@ -38,11 +38,9 @@ import {
   createItemInput,
   createPlannedRecipeInputSchema,
   deletePlannedRecipeOutputSchema,
-  itemTypeSchema,
   listItemsInput,
   plannedRecipeListItemSchema,
   plannedRecipeMutationOutputSchema,
-  slotSchema,
 } from "./planned-items-openapi-types";
 
 export const listTodayPlannedRecipesProcedure = authedProcedure
@@ -180,6 +178,7 @@ export const plannedItemsProcedures = router({
 
     if (moveResult.stale) {
       log.info({ userId: ctx.user.id, itemId, version }, "Ignoring stale calendar move mutation");
+
       return { success: true, moved: false, stale: true };
     }
 
@@ -282,6 +281,7 @@ export const plannedItemsProcedures = router({
 
         if (updateResult.stale) {
           log.info({ userId, itemId, version }, "Ignoring stale calendar update mutation");
+
           return { success: true, stale: true };
         }
 
@@ -317,6 +317,7 @@ export const plannedItemsProcedures = router({
         calendarEmitter.emitToHousehold(householdKey, "failed", {
           reason: "Failed to update item",
         });
+
         return { success: false };
       }
     }),

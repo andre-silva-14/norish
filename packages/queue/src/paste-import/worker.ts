@@ -6,7 +6,6 @@
  */
 
 import type { Job } from "bullmq";
-
 import type {
   PasteImportJobData,
   PasteImportJobResult,
@@ -14,30 +13,27 @@ import type {
 } from "@norish/queue/contracts/job-types";
 import type { FullRecipeInsertDTO } from "@norish/shared/contracts";
 import type { PolicyEmitContext } from "@norish/trpc/helpers";
+
 import {
   getAIConfig,
   getRecipePermissionPolicy,
   isAIEnabled,
 } from "@norish/config/server-config-loader";
-import {
-  createRecipeWithRefs,
-  dashboardRecipe,
-  getAllergiesForUsers,
-} from "@norish/db";
+import { createRecipeWithRefs, dashboardRecipe, getAllergiesForUsers } from "@norish/db";
 import { getAverageRating, rateRecipe } from "@norish/db/repositories/ratings";
 import { addAllergyDetectionJob } from "@norish/queue/allergy-detection/producer";
+import { requireQueueApiHandler } from "@norish/queue/api-handlers";
 import { addAutoTaggingJob } from "@norish/queue/auto-tagging/producer";
 import { getBullClient } from "@norish/queue/redis/bullmq";
 import { getQueues } from "@norish/queue/registry";
 import { createLogger } from "@norish/shared-server/logger";
 import { deleteRecipeImagesDir } from "@norish/shared-server/media/storage";
 import { MAX_RECIPE_PASTE_CHARS } from "@norish/shared/contracts/uploads";
-import { hasRecipeNameIngredientsAndSteps } from "@norish/shared/lib/helpers";
 import { FullRecipeInsertSchema } from "@norish/shared/contracts/zod";
+import { hasRecipeNameIngredientsAndSteps } from "@norish/shared/lib/helpers";
 import { emitByPolicy } from "@norish/trpc/helpers";
 import { recipeEmitter } from "@norish/trpc/routers/recipes/emitter";
 
-import { requireQueueApiHandler } from "@norish/queue/api-handlers";
 import { baseWorkerOptions, QUEUE_NAMES, STALLED_INTERVAL, WORKER_CONCURRENCY } from "../config";
 import { createLazyWorker, stopLazyWorker } from "../lazy-worker-manager";
 
@@ -152,7 +148,8 @@ async function createStructuredRecipe(
 export async function processPasteImportJob(
   job: Job<PasteImportJobData>
 ): Promise<PasteImportJobResult> {
-  const { recipeIds, structuredRecipes, userId, householdKey, householdUserIds, text, forceAI } = job.data;
+  const { recipeIds, structuredRecipes, userId, householdKey, householdUserIds, text, forceAI } =
+    job.data;
 
   log.info(
     { jobId: job.id, recipeIds, attempt: job.attemptsMade + 1 },
@@ -227,10 +224,7 @@ export async function processPasteImportJob(
 
     const usedAI = !structuredRecipes || structuredRecipes.length === 0;
 
-    log.info(
-      { jobId: job.id, recipeId: createdId, usedAI },
-      "Pasted recipe imported successfully"
-    );
+    log.info({ jobId: job.id, recipeId: createdId, usedAI }, "Pasted recipe imported successfully");
 
     emitByPolicy(recipeEmitter, viewPolicy, ctx, "imported", {
       recipe: dashboardDto,

@@ -1,5 +1,4 @@
 import { z } from "zod";
-
 import { SERVER_CONFIG } from "@norish/config/env-config-server";
 import {
   addRecipeImages,
@@ -301,6 +300,7 @@ const deleteGalleryImage = authedProcedure
           { userId: ctx.user.id, imageId: input.imageId, version: input.version },
           "Ignoring stale gallery image delete"
         );
+
         return { success: true, stale: true };
       }
 

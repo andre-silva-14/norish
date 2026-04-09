@@ -14,13 +14,14 @@
  * - Any emitter code: `getOperationContext()` to retrieve the current operationId
  */
 
+import type { OperationContext, OperationId } from "@norish/shared/contracts/realtime-envelope";
+
 import { AsyncLocalStorage } from "node:async_hooks";
 
-import type { OperationContext, OperationId } from "@norish/shared/contracts/realtime-envelope";
 
 const STORE_KEY = Symbol.for("norish:operation-context-store");
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
+ 
 const g = globalThis as any;
 const operationContextStore: AsyncLocalStorage<OperationContext> =
   g[STORE_KEY] ?? (g[STORE_KEY] = new AsyncLocalStorage<OperationContext>());

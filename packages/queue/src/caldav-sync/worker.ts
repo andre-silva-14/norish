@@ -1,19 +1,19 @@
 import type { Job } from "bullmq";
-
 import type { CaldavSyncJobData } from "@norish/queue/contracts/job-types";
 import type { Slot } from "@norish/shared/contracts";
 import type { CaldavSyncStatusInsertDto } from "@norish/shared/contracts/dto/caldav-sync-status";
 import type { CaldavSubscriptionEvents } from "@norish/trpc";
+
 import {
   createCaldavSyncStatus,
   getCaldavSyncStatusByItemId,
   updateCaldavSyncStatus,
 } from "@norish/db/repositories/caldav-sync-status";
+import { requireQueueApiHandler } from "@norish/queue/api-handlers";
 import { getBullClient } from "@norish/queue/redis/bullmq";
 import { createLogger } from "@norish/shared-server/logger";
 import { caldavEmitter } from "@norish/trpc/routers/caldav/emitter";
 
-import { requireQueueApiHandler } from "@norish/queue/api-handlers";
 import { baseWorkerOptions, QUEUE_NAMES, STALLED_INTERVAL, WORKER_CONCURRENCY } from "../config";
 import { createLazyWorker, stopLazyWorker } from "../lazy-worker-manager";
 
@@ -112,6 +112,7 @@ async function handleJobFailed(
   error: Error
 ): Promise<void> {
   const truncateErrorMessage = requireQueueApiHandler("truncateErrorMessage");
+
   if (!job) return;
 
   const { userId, itemId, itemType, plannedItemId, eventTitle } = job.data;

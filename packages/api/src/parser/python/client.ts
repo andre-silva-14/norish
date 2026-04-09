@@ -1,3 +1,5 @@
+import type { RecipeScrapersParserRequest, RecipeScrapersParserResponse } from "./contract";
+
 import {
   buildInternalParserApiUrl,
   INTERNAL_PARSER_API_URL,
@@ -5,12 +7,7 @@ import {
 } from "@norish/config/env-config-server";
 import { parserLogger as log, redactUrl } from "@norish/shared-server/logger";
 
-import {
-  RecipeScrapersParserRequestSchema,
-  RecipeScrapersParserResponseSchema,
-  type RecipeScrapersParserRequest,
-  type RecipeScrapersParserResponse,
-} from "./contract";
+import { RecipeScrapersParserRequestSchema, RecipeScrapersParserResponseSchema } from "./contract";
 
 const PARSE_ENDPOINT = "/parse";
 

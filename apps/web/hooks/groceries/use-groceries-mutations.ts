@@ -1,7 +1,20 @@
 "use client";
 
-import { sharedGroceriesHooks } from "./shared-groceries-hooks";
+import {
+  createUseGroceriesMutations,
+  createUseGroceriesQuery,
+} from "@norish/shared-react/hooks/groceries";
 
-export const useGroceriesMutations = sharedGroceriesHooks.useGroceriesMutations;
+import { useTRPC } from "@/app/providers/trpc-provider";
+import { useUnitsQuery } from "@/hooks/config";
+
+const useGroceriesQuery = createUseGroceriesQuery({ useTRPC });
+const useSharedGroceriesMutations = createUseGroceriesMutations({
+  useTRPC,
+  useGroceriesQuery,
+  useUnitsQuery,
+});
+
+export const useGroceriesMutations = useSharedGroceriesMutations;
 
 export type { GroceriesMutationsResult, GroceryCreateData } from "@norish/shared-react/hooks";

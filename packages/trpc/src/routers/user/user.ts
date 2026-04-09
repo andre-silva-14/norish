@@ -1,7 +1,7 @@
 import { mkdir, readdir, writeFile } from "fs/promises";
 import path from "path";
-import { z } from "zod";
 
+import { z } from "zod";
 import { SERVER_CONFIG } from "@norish/config/env-config-server";
 import {
   clearUserAvatar,
@@ -83,6 +83,7 @@ const updatePreferences = authedProcedure
         { userId: ctx.user.id, version: input.version },
         "Ignoring stale user preferences mutation"
       );
+
       return {
         success: true,
         stale: true,
@@ -121,6 +122,7 @@ const updateName = authedProcedure
         { userId: ctx.user.id, version: input.version },
         "Ignoring stale user name mutation"
       );
+
       return { success: true, stale: true };
     }
 
@@ -205,6 +207,7 @@ const uploadAvatar = authedProcedure
     if (result.stale) {
       await deleteAvatarByFilename(filename);
       log.info({ userId: ctx.user.id, version }, "Ignoring stale user avatar upload");
+
       return { success: true, stale: true };
     }
 
@@ -237,6 +240,7 @@ const deleteAvatar = authedProcedure
         { userId: ctx.user.id, version: input.version },
         "Ignoring stale user avatar delete"
       );
+
       return { success: true, stale: true };
     }
 

@@ -1,6 +1,4 @@
 import { TRPCError } from "@trpc/server";
-import { z } from "zod";
-
 import { assertHouseholdAccess } from "@norish/auth/permissions";
 import {
   checkStoreNameExistsInHousehold,
@@ -21,6 +19,7 @@ import {
 import { authedProcedure } from "../../middleware";
 import { router } from "../../trpc";
 import { groceryEmitter } from "../groceries/emitter";
+
 import { storeEmitter } from "./emitter";
 import { createStoreData, listStoresData } from "./stores-helpers";
 import {
@@ -109,6 +108,7 @@ const update = authedProcedure.input(StoreUpdateInputSchema).mutation(async ({ c
         { userId: ctx.user.id, storeId: input.id, version: input.version },
         "Ignoring stale store update mutation"
       );
+
       return input.id;
     }
 
@@ -143,6 +143,7 @@ const remove = authedProcedure.input(StoreDeleteSchema).mutation(async ({ ctx, i
     .then(({ deletedGroceryIds, storeDeleted, stale }) => {
       if (stale) {
         log.info({ userId: ctx.user.id, storeId, version }, "Ignoring stale store delete mutation");
+
         return;
       }
 
@@ -191,6 +192,7 @@ const reorder = authedProcedure.input(StoreReorderSchema).mutation(async ({ ctx,
         { userId: ctx.user.id, requestedStoreCount: storeUpdates.length },
         "Ignoring stale store reorder mutation"
       );
+
       return storeUpdates.map((s) => s.id);
     }
 

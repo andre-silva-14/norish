@@ -1,7 +1,8 @@
-import { ApiReference } from "@scalar/nextjs-api-reference";
 import { headers } from "next/headers";
-import { auth } from "@norish/auth/auth";
 import { NextResponse } from "next/server";
+import { ApiReference } from "@scalar/nextjs-api-reference";
+
+import { auth } from "@norish/auth/auth";
 
 export const maxDuration = 300;
 

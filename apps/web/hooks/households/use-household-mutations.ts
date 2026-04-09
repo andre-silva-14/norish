@@ -1,7 +1,21 @@
 "use client";
 
-import { sharedHouseholdHooks } from "./shared-household-hooks";
+import {
+  createUseHouseholdMutations,
+  createUseHouseholdQuery,
+} from "@norish/shared-react/hooks/households";
 
-export const useHouseholdMutations = sharedHouseholdHooks.useHouseholdMutations;
+import { useTRPC } from "@/app/providers/trpc-provider";
+
+import { useCurrentHouseholdUserName } from "./adapters";
+
+const useHouseholdQuery = createUseHouseholdQuery({ useTRPC });
+const useSharedHouseholdMutations = createUseHouseholdMutations({
+  useTRPC,
+  useHouseholdQuery,
+  useCurrentUserName: useCurrentHouseholdUserName,
+});
+
+export const useHouseholdMutations = useSharedHouseholdMutations;
 
 export type { HouseholdMutationsResult } from "@norish/shared-react/hooks";

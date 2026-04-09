@@ -4,6 +4,7 @@ import type {
   RecipeShareDto,
   RecipeShareSummaryDto,
 } from "@norish/shared/contracts/dto/recipe-shares";
+
 import {
   PublicRecipeViewSchema,
   RecipeShareSummarySchema,
@@ -42,15 +43,19 @@ export function resolveRecipeShareExpiresAt(
   switch (policy) {
     case "1day":
       expiresAt.setDate(expiresAt.getDate() + 1);
+
       return expiresAt;
     case "1week":
       expiresAt.setDate(expiresAt.getDate() + 7);
+
       return expiresAt;
     case "1month":
       expiresAt.setMonth(expiresAt.getMonth() + 1);
+
       return expiresAt;
     case "1year":
       expiresAt.setFullYear(expiresAt.getFullYear() + 1);
+
       return expiresAt;
     case "forever":
       return null;

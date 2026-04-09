@@ -1,10 +1,9 @@
-import { createOpenApiFetchHandler, generateOpenApiDocument } from "trpc-to-openapi";
-
 import type { OperationId } from "@norish/shared/contracts/realtime-envelope";
+
+import { createOpenApiFetchHandler, generateOpenApiDocument } from "trpc-to-openapi";
 import { isOperationId } from "@norish/shared/lib/operation-helpers";
 
 import { createHttpContextFromHeaders } from "./context";
-import { health } from "./routers/config/procedures";
 import {
   createPlannedRecipeProcedure,
   deletePlannedRecipeProcedure,
@@ -12,6 +11,7 @@ import {
   listTodayPlannedRecipesProcedure,
   listWeekPlannedRecipesProcedure,
 } from "./routers/calendar/planned-items";
+import { health } from "./routers/config/procedures";
 import {
   assignGroceryToStoreProcedure,
   createGroceryProcedure,

@@ -1,10 +1,10 @@
-import { TRPCError } from "@trpc/server";
-
 import type {
   CalDavCalendarInfo,
   ConnectionTestResult,
   UserCaldavConfigWithoutPasswordDto,
 } from "@norish/shared/contracts";
+
+import { TRPCError } from "@trpc/server";
 import {
   deleteCaldavConfig,
   getCaldavConfigDecrypted,
@@ -21,6 +21,7 @@ import { createLogger } from "@norish/shared-server/logger";
 
 import { authedProcedure } from "../../middleware";
 import { router } from "../../trpc";
+
 import { caldavEmitter } from "./emitter";
 import {
   DeleteCaldavConfigInputSchema,
@@ -216,6 +217,7 @@ export const caldavRouter = router({
 
       if (result.stale) {
         log.info({ userId, version: input.version }, "Ignoring stale CalDAV config delete");
+
         return { success: true };
       }
 

@@ -14,6 +14,7 @@ import { trpcLogger as log } from "@norish/shared-server/logger";
 
 import { authedProcedure } from "../../middleware";
 import { publicProcedure, router } from "../../trpc";
+
 import { healthyResponseSchema, parserHealthSchema } from "./config-openapi-types";
 
 export async function getServiceHealth() {

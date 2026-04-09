@@ -18,7 +18,14 @@ const mockNormalizeRecipeFromJson = vi.fn(async (node: Record<string, unknown>) 
   protein: null,
   systemUsed: "metric",
   recipeIngredients: [
-    { ingredientId: null, ingredientName: "Ingredient", amount: 1, unit: null, systemUsed: "metric", order: 0 },
+    {
+      ingredientId: null,
+      ingredientName: "Ingredient",
+      amount: 1,
+      unit: null,
+      systemUsed: "metric",
+      order: 0,
+    },
   ],
   steps: [{ step: "Step", order: 1, systemUsed: "metric" }],
   tags: [],
@@ -53,7 +60,9 @@ const mockExtractRecipeNodesFromJsonValue = vi.fn((input: unknown) => {
     if (Array.isArray(record["@graph"])) {
       return (record["@graph"] as unknown[]).filter(
         (entry): entry is Record<string, unknown> =>
-          !!entry && typeof entry === "object" && (entry as Record<string, unknown>)["@type"] === "Recipe"
+          !!entry &&
+          typeof entry === "object" &&
+          (entry as Record<string, unknown>)["@type"] === "Recipe"
       );
     }
 
@@ -66,12 +75,15 @@ vi.mock("@norish/config/server-config-loader", () => ({
 }));
 
 vi.mock("@norish/queue/api-handlers", () => ({
-  requireQueueApiHandler: vi.fn((name: string) => ({
-    extractRecipeNodesFromJsonValue: mockExtractRecipeNodesFromJsonValue,
-    normalizeRecipeFromJson: mockNormalizeRecipeFromJson,
-    parseCategories: mockParseCategories,
-    parseTags: mockParseTags,
-  })[name]),
+  requireQueueApiHandler: vi.fn(
+    (name: string) =>
+      ({
+        extractRecipeNodesFromJsonValue: mockExtractRecipeNodesFromJsonValue,
+        normalizeRecipeFromJson: mockNormalizeRecipeFromJson,
+        parseCategories: mockParseCategories,
+        parseTags: mockParseTags,
+      })[name]
+  ),
 }));
 
 describe("preparePasteImport", () => {

@@ -1,10 +1,10 @@
-import { z } from "zod";
-
 import type {
   ArchiveImportError,
   ArchiveSkippedItem,
   RecipeDashboardDTO,
 } from "@norish/shared/contracts";
+
+import { z } from "zod";
 import {
   ArchiveFormat,
   calculateBatchSize,
@@ -31,6 +31,7 @@ const importArchive = authedProcedure
 
     if (!file) {
       log.warn({ userId: ctx.user.id }, "Archive import: no file in FormData");
+
       return { success: false, error: "No file provided" };
     }
 
@@ -47,6 +48,7 @@ const importArchive = authedProcedure
 
     if (!isMela && !isPaprikaRecipes && !isZip) {
       log.warn({ userId: ctx.user.id, fileName: file.name }, "Archive import: invalid file type");
+
       return {
         success: false,
         error: "Invalid file type. Expected .melarecipes, .paprikarecipes, or .zip file.",
@@ -70,6 +72,7 @@ const importArchive = authedProcedure
 
       if (format === ArchiveFormat.UNKNOWN) {
         log.warn({ userId: ctx.user.id, fileName: file.name }, "Archive import: unknown format");
+
         return {
           success: false,
           error:
@@ -79,6 +82,7 @@ const importArchive = authedProcedure
 
       if (total === 0) {
         log.warn({ userId: ctx.user.id, format }, "Archive import: no recipes found");
+
         return { success: false, error: "No recipes found in archive" };
       }
 

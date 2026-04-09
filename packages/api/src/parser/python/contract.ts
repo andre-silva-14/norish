@@ -53,9 +53,7 @@ export const RecipeScrapersParserResponseSchema = z.discriminatedUnion("ok", [
 ]);
 
 export type RecipeScrapersParserRequest = z.infer<typeof RecipeScrapersParserRequestSchema>;
-export type RecipeScrapersParserFailureCode = z.infer<
-  typeof RecipeScrapersParserFailureCodeSchema
->;
+export type RecipeScrapersParserFailureCode = z.infer<typeof RecipeScrapersParserFailureCodeSchema>;
 export type RecipeScrapersParserSuccess = z.infer<typeof RecipeScrapersParserSuccessSchema>;
 export type RecipeScrapersParserFailure = z.infer<typeof RecipeScrapersParserFailureSchema>;
 export type RecipeScrapersParserResponse = z.infer<typeof RecipeScrapersParserResponseSchema>;

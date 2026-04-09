@@ -1,9 +1,7 @@
 import type { AIResult } from "@norish/shared-server/ai/types/result";
-import type { Slot } from "@norish/shared/contracts";
-import type { RecipeCategory } from "@norish/shared/contracts";
+import type { RecipeCategory, Slot } from "@norish/shared/contracts";
 import type { FullRecipeInsertDTO } from "@norish/shared/contracts/dto/recipe";
 import type { SiteAuthTokenDecryptedDto } from "@norish/shared/contracts/dto/site-auth-tokens";
-
 import type { ImageImportFile } from "./contracts/job-types";
 
 export interface QueueParseRecipeResult {
@@ -36,10 +34,7 @@ export interface QueueMediaCleanupResult {
 
 export interface QueueApiHandlers {
   extractRecipeNodesFromJsonValue(input: unknown): Record<string, unknown>[];
-  normalizeRecipeFromJson(
-    json: unknown,
-    recipeId?: string
-  ): Promise<FullRecipeInsertDTO | null>;
+  normalizeRecipeFromJson(json: unknown, recipeId?: string): Promise<FullRecipeInsertDTO | null>;
   parseCategories(recipeCategory: unknown): RecipeCategory[];
   parseTags(keywords: unknown): { name: string }[];
   extractRecipeWithAI(
@@ -110,7 +105,9 @@ export function registerQueueApiHandlers(handlers: Partial<QueueApiHandlers>): v
   };
 }
 
-export function requireQueueApiHandler<K extends keyof QueueApiHandlers>(name: K): QueueApiHandlers[K] {
+export function requireQueueApiHandler<K extends keyof QueueApiHandlers>(
+  name: K
+): QueueApiHandlers[K] {
   const handler = getRegisteredHandlers()[name];
 
   if (!handler) {

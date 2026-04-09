@@ -85,9 +85,12 @@ vi.mock("@norish/db", () => ({
 }));
 
 vi.mock("@norish/queue/api-handlers", () => ({
-  requireQueueApiHandler: vi.fn((name: string) => ({
-    categorizeRecipe: mockCategorizeRecipe,
-  })[name]),
+  requireQueueApiHandler: vi.fn(
+    (name: string) =>
+      ({
+        categorizeRecipe: mockCategorizeRecipe,
+      })[name]
+  ),
 }));
 
 vi.mock("@norish/queue/redis/subscription-multiplexer", () => ({
