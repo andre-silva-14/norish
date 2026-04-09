@@ -10,14 +10,12 @@
  * - Videos
  */
 
+import { randomUUID } from "crypto";
 
 import type { RecipeCategory } from "@norish/shared/contracts";
 import type { FullRecipeInsertDTO } from "@norish/shared/contracts/dto/recipe";
-
-import { randomUUID } from "crypto";
-
-import { parserLogger } from "@norish/shared-server/logger";
 import { getUnits } from "@norish/config/server-config-loader";
+import { parserLogger } from "@norish/shared-server/logger";
 
 import {
   extractNutrition,
@@ -40,7 +38,7 @@ const log = parserLogger.child({ module: "normalize" });
  * @param keywords - The keywords field from JSON-LD
  * @returns Array of tag objects
  */
-function parseTags(keywords: unknown): { name: string }[] {
+export function parseTags(keywords: unknown): { name: string }[] {
   if (!Array.isArray(keywords)) return [];
 
   return keywords
@@ -48,7 +46,7 @@ function parseTags(keywords: unknown): { name: string }[] {
     .map((k) => ({ name: k.toLowerCase() }));
 }
 
-function parseCategories(recipeCategory: unknown): RecipeCategory[] {
+export function parseCategories(recipeCategory: unknown): RecipeCategory[] {
   const validCategories: RecipeCategory[] = ["Breakfast", "Lunch", "Dinner", "Snack"];
   const categoryMap: Record<string, RecipeCategory> = {
     breakfast: "Breakfast",

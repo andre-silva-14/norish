@@ -1,8 +1,5 @@
 "use client";
 
-import { TRPCClientError } from "@trpc/client";
-import { createRecipeDetailContext } from "@norish/shared-react/hooks";
-
 import { useRecipesContext } from "@/context/recipes-context";
 import { useFavoritesMutation } from "@/hooks/favorites";
 import { useRatingQuery, useRatingsMutation } from "@/hooks/ratings";
@@ -20,7 +17,11 @@ import {
   useRecipeQuery,
   useRecipeSubscription,
 } from "@/hooks/recipes";
+import { sharedRecipeShareHooks } from "@/hooks/recipes/shared-recipe-hooks";
 import { useActiveAllergies } from "@/hooks/user";
+import { TRPCClientError } from "@trpc/client";
+
+import { createRecipeDetailContext } from "@norish/shared-react/hooks";
 
 const {
   RecipeDetailProvider: RecipeContextProvider,
@@ -29,6 +30,9 @@ const {
 } = createRecipeDetailContext({
   useRecipeQuery,
   useRecipeSubscription,
+  useRecipeSharesQuery: sharedRecipeShareHooks.useRecipeSharesQuery,
+  useRecipeShareSubscription: sharedRecipeShareHooks.useRecipeShareSubscription,
+  useRecipeShareMutations: sharedRecipeShareHooks.useRecipeShareMutations,
   useNutritionQuery,
   useNutritionMutation,
   useNutritionSubscription,
@@ -43,7 +47,6 @@ const {
   useRatingQuery,
   useRatingsMutation,
   useFavoriteIds: () => {
-     
     const { favoriteIds } = useRecipesContext();
 
     return favoriteIds;

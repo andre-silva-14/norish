@@ -1,6 +1,5 @@
 import { createEnvelopeAwareSubscription } from "../../helpers";
 import { router } from "../../trpc";
-
 import { recipeEmitter } from "./emitter";
 
 const onCreated = createEnvelopeAwareSubscription(recipeEmitter, "created", "recipe created");
@@ -14,6 +13,31 @@ const onUpdated = createEnvelopeAwareSubscription(recipeEmitter, "updated", "rec
 const onDeleted = createEnvelopeAwareSubscription(recipeEmitter, "deleted", "recipe deleted");
 const onConverted = createEnvelopeAwareSubscription(recipeEmitter, "converted", "recipe converted");
 const onFailed = createEnvelopeAwareSubscription(recipeEmitter, "failed", "recipe failed");
+const onShareCreated = createEnvelopeAwareSubscription(
+  recipeEmitter,
+  "shareCreated",
+  "recipe share created"
+);
+const onShareUpdated = createEnvelopeAwareSubscription(
+  recipeEmitter,
+  "shareUpdated",
+  "recipe share updated"
+);
+const onShareRevoked = createEnvelopeAwareSubscription(
+  recipeEmitter,
+  "shareRevoked",
+  "recipe share revoked"
+);
+const onShareReactivated = createEnvelopeAwareSubscription(
+  recipeEmitter,
+  "shareReactivated",
+  "recipe share reactivated"
+);
+const onShareDeleted = createEnvelopeAwareSubscription(
+  recipeEmitter,
+  "shareDeleted",
+  "recipe share deleted"
+);
 const onNutritionStarted = createEnvelopeAwareSubscription(
   recipeEmitter,
   "nutritionStarted",
@@ -68,6 +92,11 @@ export const recipesSubscriptions = router({
   onDeleted,
   onConverted,
   onFailed,
+  onShareCreated,
+  onShareUpdated,
+  onShareRevoked,
+  onShareReactivated,
+  onShareDeleted,
   onNutritionStarted,
   onAutoTaggingStarted,
   onAutoTaggingCompleted,

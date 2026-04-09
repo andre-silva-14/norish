@@ -1,4 +1,6 @@
 import type { InfiniteData, QueryClient, QueryKey } from "@tanstack/react-query";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+
 import type {
   FullRecipeDTO,
   FullRecipeInsertDTO,
@@ -6,11 +8,9 @@ import type {
   MeasurementSystem,
   RecipeDashboardDTO,
 } from "@norish/shared/contracts";
+
 import type { CreateRecipeHooksOptions } from "../types";
 import type { RecipesCacheHelpers } from "./use-recipes-cache";
-
-import { useMutation, useQueryClient } from "@tanstack/react-query";
-
 import { shouldPreserveOptimisticUpdate as preserveOptimisticUpdate } from "../../optimistic-updates";
 import { OPTIMISTIC_PENDING_RECIPE_PREFIX } from "./use-recipes-cache";
 
@@ -98,11 +98,18 @@ export function createUseRecipesMutations(
     >;
   }
 ) {
-  return function useRecipesMutations(onError?: RecipesMutationErrorHandler): RecipesMutationsResult {
+  return function useRecipesMutations(
+    onError?: RecipesMutationErrorHandler
+  ): RecipesMutationsResult {
     const trpc = useTRPC();
     const queryClient = useQueryClient();
-    const { addPendingRecipe, replacePendingRecipe, removePendingRecipe, setAllRecipesData, invalidate } =
-      dependencies.useRecipesCacheHelpers();
+    const {
+      addPendingRecipe,
+      replacePendingRecipe,
+      removePendingRecipe,
+      setAllRecipesData,
+      invalidate,
+    } = dependencies.useRecipesCacheHelpers();
 
     const shouldPreserve = (error: unknown): boolean => {
       return preserveOptimisticUpdate(error, shouldPreserveOptimisticUpdate);
@@ -167,13 +174,25 @@ export function createUseRecipesMutations(
 
           return { optimisticPendingId };
         },
-        onSuccess: (recipeId, _variables, context) => {
-          if (!context) {
-            addPendingRecipe(recipeId);
+        onSuccess: (result, _variables, context) => {
+          const [firstRecipeId, ...remainingRecipeIds] = result.recipeIds;
+
+          if (!firstRecipeId) {
+            if (context) {
+              removePendingRecipe(context.optimisticPendingId);
+            }
+
+            invalidate();
             return;
           }
 
-          replacePendingRecipe(context.optimisticPendingId, recipeId);
+          if (!context) {
+            result.recipeIds.forEach((recipeId) => addPendingRecipe(recipeId));
+            return;
+          }
+
+          replacePendingRecipe(context.optimisticPendingId, firstRecipeId);
+          remainingRecipeIds.forEach((recipeId) => addPendingRecipe(recipeId));
         },
         onError: (error, variables, context) => {
           handleImportError(

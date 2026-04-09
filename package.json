@@ -5,7 +5,8 @@
   "type": "module",
   "packageManager": "pnpm@10.30.1",
   "scripts": {
-    "dev": "turbo watch dev -F @norish/web... --continue",
+    "dev": "turbo watch dev --filter=@norish/web... --continue",
+    "dev:tui": "turbo watch dev --ui=tui --filter=@norish/web... --continue",
     "dev:mobile": "pnpm --filter @norish/mobile run start",
     "build:web": "pnpm --filter @norish/web run build:web",
     "build": "turbo run build",
@@ -38,17 +39,6 @@
     "format:check": "turbo run format",
     "deps:cycles": "node tooling/monorepo/scripts/check-circular-deps.mjs",
     "i18n:check": "pnpm --filter @norish/i18n run check:locale-keys"
-  },
-  "dependencies": {
-    "@norish/api": "workspace:*",
-    "@norish/auth": "workspace:*",
-    "@norish/config": "workspace:*",
-    "@norish/db": "workspace:*",
-    "@norish/i18n": "workspace:*",
-    "@norish/queue": "workspace:*",
-    "@norish/shared": "workspace:*",
-    "@norish/ui": "workspace:*",
-    "@norish/web": "workspace:*"
   },
   "devDependencies": {
     "@norish/prettier-config": "workspace:*",

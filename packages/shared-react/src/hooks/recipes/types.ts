@@ -1,4 +1,5 @@
 import type { createTRPCContext } from "@trpc/tanstack-react-query";
+
 import type { AppRouter } from "@norish/trpc/client";
 
 type TrpcContext = ReturnType<typeof createTRPCContext<AppRouter>>;
@@ -17,6 +18,10 @@ type SubscriptionProceduresContract = {
     onCreated: { subscriptionOptions: SubscriptionOptionsFactory };
     onImportStarted: { subscriptionOptions: SubscriptionOptionsFactory };
     onImported: { subscriptionOptions: SubscriptionOptionsFactory };
+    onShareCreated: { subscriptionOptions: SubscriptionOptionsFactory };
+    onShareUpdated: { subscriptionOptions: SubscriptionOptionsFactory };
+    onShareRevoked: { subscriptionOptions: SubscriptionOptionsFactory };
+    onShareDeleted: { subscriptionOptions: SubscriptionOptionsFactory };
     onUpdated: { subscriptionOptions: SubscriptionOptionsFactory };
     onDeleted: { subscriptionOptions: SubscriptionOptionsFactory };
     onConverted: { subscriptionOptions: SubscriptionOptionsFactory };

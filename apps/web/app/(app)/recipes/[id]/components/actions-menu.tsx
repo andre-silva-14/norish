@@ -2,11 +2,17 @@
 
 import React, { useMemo } from "react";
 import { useRouter } from "next/navigation";
+import { MiniCalendar, MiniGroceries } from "@/components/Panel/consumers";
+import { DeleteRecipeModal } from "@/components/shared/delete-recipe-modal";
+import { usePermissionsContext } from "@/context/permissions-context";
+import { useRecipesContext } from "@/context/recipes-context";
+import { useActiveAllergies } from "@/hooks/user";
 import {
   CalendarDaysIcon,
   DevicePhoneMobileIcon,
   EllipsisHorizontalIcon,
   PencilSquareIcon,
+  ShareIcon,
   ShoppingCartIcon,
   SparklesIcon,
   TrashIcon,
@@ -20,17 +26,12 @@ import {
   useDisclosure,
 } from "@heroui/react";
 import { useTranslations } from "next-intl";
+
 import { cssAIGradientText, cssAIIconColor, cssButtonPill } from "@norish/web/config/css-tokens";
 
 import { useRecipeContextRequired } from "../context";
-
+import RecipeSharePanel from "./recipe-share-panel";
 import { useWakeLockContext } from "./wake-lock-context";
-
-import { useActiveAllergies } from "@/hooks/user";
-import { useRecipesContext } from "@/context/recipes-context";
-import { usePermissionsContext } from "@/context/permissions-context";
-import { DeleteRecipeModal } from "@/components/shared/delete-recipe-modal";
-import { MiniCalendar, MiniGroceries } from "@/components/Panel/consumers";
 
 type Props = { id: string };
 
@@ -49,6 +50,7 @@ export default function ActionsMenu({ id }: Props) {
   const [isDropdownOpen, setIsDropdownOpen] = React.useState(false);
   const [openCalendar, setOpenCalendar] = React.useState(false);
   const [openGroceries, setOpenGroceries] = React.useState(false);
+  const [openSharePanel, setOpenSharePanel] = React.useState(false);
   const {
     isOpen: isDeleteModalOpen,
     onOpen: onDeleteModalOpen,
@@ -103,6 +105,13 @@ export default function ActionsMenu({ id }: Props) {
     ];
 
     if (canEdit) {
+      items.push({
+        key: "share",
+        label: t("share"),
+        icon: <ShareIcon className="size-4" />,
+        onPress: () => setOpenSharePanel(true),
+      });
+
       items.push({
         key: "edit",
         label: t("edit"),
@@ -260,6 +269,8 @@ export default function ActionsMenu({ id }: Props) {
       <MiniGroceries open={openGroceries} recipeId={id} onOpenChange={setOpenGroceries} />
 
       <MiniCalendar open={openCalendar} recipeId={id} onOpenChange={setOpenCalendar} />
+
+      <RecipeSharePanel open={openSharePanel} onOpenChange={setOpenSharePanel} />
 
       <DeleteRecipeModal
         isOpen={isDeleteModalOpen}
