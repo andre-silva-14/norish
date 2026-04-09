@@ -1,5 +1,6 @@
-import React, { act } from "react";
+import React from "react";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { flushSync } from "react-dom";
 import { createRoot } from "react-dom/client";
 import { afterEach, describe, expect, it, vi } from "vitest";
 
@@ -143,7 +144,7 @@ const mountedRoots: Array<{ root: ReturnType<typeof createRoot>; container: HTML
 
 afterEach(() => {
   for (const { root, container } of mountedRoots.splice(0)) {
-    act(() => {
+    flushSync(() => {
       root.unmount();
     });
 
@@ -236,7 +237,7 @@ describe("recipe share hooks", () => {
     const root = createRoot(container);
     mountedRoots.push({ root, container });
 
-    act(() => {
+    flushSync(() => {
       root.render(
         <RecipeDetailProvider recipeId={recipe.id}>
           <CaptureContext />
@@ -248,17 +249,15 @@ describe("recipe share hooks", () => {
     expect(capturedContext.current?.isLoadingShares).toBe(false);
     expect(capturedContext.current?.isUpdatingShare).toBe(true);
 
-    act(() => {
-      capturedContext.current?.refreshShares();
-      capturedContext.current?.createShare("1week");
-      capturedContext.current?.updateShare({
-        id: shares[0]!.id,
-        version: shares[0]!.version,
-        expiresIn: "1month",
-      });
-      capturedContext.current?.revokeShare(shares[0]!.id, shares[0]!.version);
-      capturedContext.current?.deleteShare(shares[0]!.id, shares[0]!.version);
+    capturedContext.current?.refreshShares();
+    capturedContext.current?.createShare("1week");
+    capturedContext.current?.updateShare({
+      id: shares[0]!.id,
+      version: shares[0]!.version,
+      expiresIn: "1month",
     });
+    capturedContext.current?.revokeShare(shares[0]!.id, shares[0]!.version);
+    capturedContext.current?.deleteShare(shares[0]!.id, shares[0]!.version);
 
     expect(refreshShares).toHaveBeenCalledTimes(1);
     expect(createShare).toHaveBeenCalledWith("1week");
@@ -293,7 +292,7 @@ describe("recipe share hooks", () => {
     const root = createRoot(container);
     mountedRoots.push({ root, container });
 
-    act(() => {
+    flushSync(() => {
       root.render(
         <QueryClientProvider client={queryClient}>
           <TestComponent />
@@ -314,15 +313,13 @@ describe("recipe share hooks", () => {
       }) => void;
     };
 
-    act(() => {
-      createdOptions.onData?.({
-        payload: {
-          type: "created",
-          recipeId: "recipe-1",
-          shareId: "share-1",
-          version: 1,
-        },
-      });
+    createdOptions.onData?.({
+      payload: {
+        type: "created",
+        recipeId: "recipe-1",
+        shareId: "share-1",
+        version: 1,
+      },
     });
 
     expect(invalidateQueries).toHaveBeenCalledWith({
@@ -332,15 +329,13 @@ describe("recipe share hooks", () => {
       queryKey: [["recipes", "shareGet"], { input: { id: "share-1" }, type: "query" }],
     });
 
-    act(() => {
-      deletedOptions.onData?.({
-        payload: {
-          type: "deleted",
-          recipeId: "recipe-1",
-          shareId: "share-1",
-          version: 2,
-        },
-      });
+    deletedOptions.onData?.({
+      payload: {
+        type: "deleted",
+        recipeId: "recipe-1",
+        shareId: "share-1",
+        version: 2,
+      },
     });
 
     expect(removeQueries).toHaveBeenCalledWith({
