@@ -10,7 +10,7 @@ import itRecipes from "@norish/i18n/messages/it/recipes.json";
 import koRecipes from "@norish/i18n/messages/ko/recipes.json";
 import nlRecipes from "@norish/i18n/messages/nl/recipes.json";
 
-const FUZZY_THRESHOLD = 0.4;
+const FUZZY_THRESHOLD = 0.25;
 
 type RecipeCategoryKey = "breakfast" | "lunch" | "dinner" | "snack";
 

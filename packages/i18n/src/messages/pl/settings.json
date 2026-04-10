@@ -207,7 +207,9 @@
       "regenerateButton": "Wygeneruj ponownie",
       "expired": "Wygasł",
       "noCodeDescription": "Brak aktywnego kodu dołączenia. Wygeneruj go, aby zaprosić nowych członków.",
-      "generateButton": "Wygeneruj kod dołączenia"
+      "generateButton": "Wygeneruj kod dołączenia",
+      "copySuccess": "Skopiowano kod dołączenia",
+      "copyFailed": "Nie udało się skopiować kodu dołączenia"
     },
     "create": {
       "title": "Utwórz gospodarstwo domowe",

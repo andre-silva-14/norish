@@ -207,7 +207,9 @@
       "regenerateButton": "Rigenera",
       "expired": "Scaduto",
       "noCodeDescription": "Nessun codice di accesso attivo. Generane uno per invitare nuovi membri.",
-      "generateButton": "Genera codice di accesso"
+      "generateButton": "Genera codice di accesso",
+      "copySuccess": "Codice di accesso copiato",
+      "copyFailed": "Impossibile copiare il codice di accesso"
     },
     "create": {
       "title": "Crea nucleo familiare",

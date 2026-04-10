@@ -207,7 +207,9 @@
       "regenerateButton": "Generer ny",
       "expired": "Udløbet",
       "noCodeDescription": "Ingen aktiv tilmeldingskode. Generer én for at invitere nye medlemmer.",
-      "generateButton": "Generer tilmeldingskode"
+      "generateButton": "Generer tilmeldingskode",
+      "copySuccess": "Tilmeldingskode kopieret",
+      "copyFailed": "Kunne ikke kopiere tilmeldingskoden"
     },
     "create": {
       "title": "Opret husstand",
