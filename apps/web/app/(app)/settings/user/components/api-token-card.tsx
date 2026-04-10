@@ -31,6 +31,7 @@ import {
 } from "@heroui/react";
 import { useTranslations } from "next-intl";
 
+import NewFeatureChip from "../../components/new-feature-chip";
 import { useUserSettingsContext } from "../context";
 
 export default function ApiKeyCard() {
@@ -78,6 +79,7 @@ export default function ApiKeyCard() {
           <h2 className="flex items-center gap-2 text-lg font-semibold">
             <KeyIcon className="h-5 w-5" />
             {t("title")}
+            <NewFeatureChip showOnVersion="0.18.0" />
           </h2>
         </CardHeader>
         <CardBody className="gap-4">

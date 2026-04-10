@@ -1,8 +1,11 @@
 "use client";
 
+import type {
+  AdminRecipeShareInventoryDto,
+  RecipeShareInventoryDto,
+} from "@norish/shared/contracts/dto/recipe-shares";
+
 import { useState } from "react";
-import RecipeShareStatusChip from "@/components/recipes/recipe-share-status-chip";
-import { sharedRecipeShareHooks } from "@/hooks/recipes/shared-recipe-hooks";
 import { PauseIcon, PlayIcon, TrashIcon } from "@heroicons/react/24/outline";
 import {
   Button,
@@ -23,10 +26,10 @@ import {
 } from "@heroui/react";
 import { useTranslations } from "next-intl";
 
-import type {
-  AdminRecipeShareInventoryDto,
-  RecipeShareInventoryDto,
-} from "@norish/shared/contracts/dto/recipe-shares";
+import NewFeatureChip from "@/app/(app)/settings/components/new-feature-chip";
+import RecipeShareStatusChip from "@/components/recipes/recipe-share-status-chip";
+import { sharedRecipeShareHooks } from "@/hooks/recipes/shared-recipe-hooks";
+
 
 type ShareRow = RecipeShareInventoryDto | AdminRecipeShareInventoryDto;
 type ConfirmAction = { share: ShareRow; type: "revoke" | "reactivate" | "delete" } | null;
@@ -137,7 +140,10 @@ export default function ShareLinksTableCard({
     <>
       <Card>
         <CardHeader>
-          <h2 className="text-lg font-semibold">{t("title")}</h2>
+          <h2 className="flex items-center gap-2 text-lg font-semibold">
+            {t("title")}
+            <NewFeatureChip showOnVersion="0.18.0" />
+          </h2>
         </CardHeader>
         <CardBody className="gap-4">
           <p className="text-default-600 text-base">{t("description")}</p>
