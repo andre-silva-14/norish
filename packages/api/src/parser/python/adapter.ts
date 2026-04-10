@@ -1,7 +1,5 @@
 import type { RecipeCategory } from "@norish/shared/contracts";
 import type { FullRecipeInsertDTO } from "@norish/shared/contracts/dto/recipe";
-import type { RecipeScrapersParserSuccess } from "./contract";
-
 import { parseImages } from "@norish/api/parser/parsers/images";
 import { parseIngredients } from "@norish/api/parser/parsers/ingredients";
 import { getServings } from "@norish/api/parser/parsers/metadata";
@@ -11,6 +9,7 @@ import { parseVideos } from "@norish/api/parser/parsers/videos";
 import { getUnits } from "@norish/config/server-config-loader";
 import { parserLogger as log } from "@norish/shared-server/logger";
 
+import type { RecipeScrapersParserSuccess } from "./contract";
 
 type ScraperRecipe = RecipeScrapersParserSuccess["recipe"];
 type EmbeddedVideo = RecipeScrapersParserSuccess["media"]["videos"][number];

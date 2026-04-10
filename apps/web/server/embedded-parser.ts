@@ -139,7 +139,7 @@ export async function startEmbeddedParser(
 
   const child = spawn(pythonExecutable, args, {
     cwd: parserAppDir,
-    env: process.env,
+    env: globalThis.process.env,
     stdio: ["ignore", "pipe", "pipe"],
     detached: process.platform !== "win32",
   });

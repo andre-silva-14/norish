@@ -45,7 +45,6 @@ export default function RecipePageMobile() {
   const { rateRecipe, isRating } = useRatingsMutation();
   const { user } = useUserContext();
   const t = useTranslations("recipes.detail");
-  const tForm = useTranslations("recipes.form");
   const showRatings = getShowRatingsPreference(user);
   const showFavorites = getShowFavoritesPreference(user);
 

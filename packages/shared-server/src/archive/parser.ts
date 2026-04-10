@@ -1,8 +1,8 @@
-import fs from "node:fs/promises";
 import { randomUUID } from "node:crypto";
+import fs from "node:fs/promises";
 import path from "node:path";
-
 import JSZip from "jszip";
+
 import { SERVER_CONFIG } from "@norish/config/env-config-server";
 import {
   createRecipeWithRefs,
@@ -103,7 +103,11 @@ function createArchiveRecipeId(): string {
   return randomUUID();
 }
 
-function rewriteRecipeMediaUrl(url: string | null | undefined, fromRecipeId: string, toRecipeId: string) {
+function rewriteRecipeMediaUrl(
+  url: string | null | undefined,
+  fromRecipeId: string,
+  toRecipeId: string
+) {
   if (!url || !url.startsWith(`/recipes/${fromRecipeId}/`)) {
     return url;
   }
@@ -147,7 +151,8 @@ async function rehomeArchiveMediaToRecipe(
     videos: dto.videos?.map((video) => ({
       ...video,
       video: rewriteRecipeMediaUrl(video.video, sourceRecipeId, targetRecipeId) ?? video.video,
-      thumbnail: rewriteRecipeMediaUrl(video.thumbnail, sourceRecipeId, targetRecipeId) ?? video.thumbnail,
+      thumbnail:
+        rewriteRecipeMediaUrl(video.thumbnail, sourceRecipeId, targetRecipeId) ?? video.thumbnail,
     })),
     steps: dto.steps.map((step) => ({
       ...step,

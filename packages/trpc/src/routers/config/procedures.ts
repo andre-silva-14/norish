@@ -1,4 +1,5 @@
 import { TRPCError } from "@trpc/server";
+
 import { getAvailableProviders, isPasswordAuthEnabled } from "@norish/auth/providers";
 import { buildInternalParserApiUrl, SERVER_CONFIG } from "@norish/config/env-config-server";
 import {
@@ -14,7 +15,6 @@ import { trpcLogger as log } from "@norish/shared-server/logger";
 
 import { authedProcedure } from "../../middleware";
 import { publicProcedure, router } from "../../trpc";
-
 import { healthyResponseSchema, parserHealthSchema } from "./config-openapi-types";
 
 export async function getServiceHealth() {

@@ -54,11 +54,9 @@ function formatServings(n: number): string {
 }
 
 function ShareServingsControl({
-  baseServings,
   servings,
   onChange,
 }: {
-  baseServings: number;
   servings: number;
   onChange: (v: number) => void;
 }) {
