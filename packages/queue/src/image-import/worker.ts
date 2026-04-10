@@ -7,9 +7,9 @@
  */
 
 import type { Job } from "bullmq";
+
 import type { ImageImportJobData } from "@norish/queue/contracts/job-types";
 import type { PolicyEmitContext } from "@norish/trpc/helpers";
-
 import { getAIConfig, getRecipePermissionPolicy } from "@norish/config/server-config-loader";
 import {
   addRecipeImages,
@@ -32,7 +32,7 @@ const log = createLogger("worker:image-import");
 /**
  * Process a single image import job.
  */
-async function processImageImportJob(job: Job<ImageImportJobData>): Promise<void> {
+export async function processImageImportJob(job: Job<ImageImportJobData>): Promise<void> {
   const extractRecipeFromImages = requireQueueApiHandler("extractRecipeFromImages");
   const { recipeId, userId, householdKey, householdUserIds, files } = job.data;
 
@@ -63,7 +63,7 @@ async function processImageImportJob(job: Job<ImageImportJobData>): Promise<void
   }
 
   // Extract recipe from images using AI vision
-  const result = await extractRecipeFromImages(files, allergyNames);
+  const result = await extractRecipeFromImages(recipeId, files, allergyNames);
 
   if (!result.success) {
     throw new Error(

@@ -2,37 +2,40 @@
 
 import { describe, expect, it, vi } from "vitest";
 
-const mockNormalizeRecipeFromJson = vi.fn(async (node: Record<string, unknown>) => ({
-  name: String(node.name ?? "Recipe"),
-  description: null,
-  notes: null,
-  url: null,
-  image: null,
-  servings: 1,
-  prepMinutes: null,
-  cookMinutes: null,
-  totalMinutes: null,
-  calories: null,
-  fat: null,
-  carbs: null,
-  protein: null,
-  systemUsed: "metric",
-  recipeIngredients: [
-    {
-      ingredientId: null,
-      ingredientName: "Ingredient",
-      amount: 1,
-      unit: null,
-      systemUsed: "metric",
-      order: 0,
-    },
-  ],
-  steps: [{ step: "Step", order: 1, systemUsed: "metric" }],
-  tags: [],
-  categories: [],
-  images: [],
-  videos: [],
-}));
+const mockNormalizeRecipeFromJson = vi.fn(
+  async (node: Record<string, unknown>, recipeId: string) => ({
+    id: recipeId,
+    name: String(node.name ?? "Recipe"),
+    description: null,
+    notes: null,
+    url: null,
+    image: null,
+    servings: 1,
+    prepMinutes: null,
+    cookMinutes: null,
+    totalMinutes: null,
+    calories: null,
+    fat: null,
+    carbs: null,
+    protein: null,
+    systemUsed: "metric",
+    recipeIngredients: [
+      {
+        ingredientId: null,
+        ingredientName: "Ingredient",
+        amount: 1,
+        unit: null,
+        systemUsed: "metric",
+        order: 0,
+      },
+    ],
+    steps: [{ step: "Step", order: 1, systemUsed: "metric" }],
+    tags: [],
+    categories: [],
+    images: [],
+    videos: [],
+  })
+);
 const mockParseCategories = vi.fn((value: unknown) =>
   typeof value === "string" && value.toLowerCase() === "breakfast" ? ["Breakfast"] : []
 );
@@ -117,6 +120,16 @@ describe("preparePasteImport", () => {
     expect(result.recipeIds).toHaveLength(2);
     expect(result.structuredRecipes).toHaveLength(2);
     expect(result.structuredRecipes?.[0]?.importedRating).toBe(4.5);
+    expect(result.structuredRecipes?.map((recipe) => recipe.recipeId)).toEqual(
+      result.structuredRecipes?.map((recipe) => recipe.recipe.id)
+    );
+    expect(mockNormalizeRecipeFromJson).toHaveBeenCalledTimes(2);
+    expect(mockNormalizeRecipeFromJson.mock.calls[0]?.[1]).toBe(
+      result.structuredRecipes?.[0]?.recipeId
+    );
+    expect(mockNormalizeRecipeFromJson.mock.calls[1]?.[1]).toBe(
+      result.structuredRecipes?.[1]?.recipeId
+    );
   });
 
   it("normalizes YAML aliases, tags, and source URL", async () => {
@@ -137,6 +150,7 @@ rating: 3.6
 `);
 
     expect(result.recipeIds).toHaveLength(1);
+    expect(result.structuredRecipes?.[0]?.recipeId).toBe(result.structuredRecipes?.[0]?.recipe.id);
     expect(result.structuredRecipes?.[0]?.recipe.tags).toEqual([
       { name: "breakfast" },
       { name: "quick" },

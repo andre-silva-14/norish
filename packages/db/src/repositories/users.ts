@@ -1,15 +1,13 @@
-import type { User } from "@norish/shared/contracts/dto/user";
-import type { MutationOutcome } from "./mutation-outcomes";
-
 import { and, eq, inArray, sql } from "drizzle-orm";
+
+import type { User } from "@norish/shared/contracts/dto/user";
 import { decrypt, encrypt, hmacIndex } from "@norish/auth/crypto";
 import { authLogger } from "@norish/db/logger";
 
-
+import type { MutationOutcome } from "./mutation-outcomes";
 import { db } from "../drizzle";
 import { accounts, users } from "../schema/auth";
 import { ServerConfigKeys } from "../zodSchemas/server-config";
-
 import { appliedOutcome, staleOutcome } from "./mutation-outcomes";
 import { setConfig } from "./server-config";
 

@@ -1,4 +1,9 @@
+import fs from "node:fs/promises";
+import { randomUUID } from "node:crypto";
+import path from "node:path";
 import JSZip from "jszip";
+
+import { SERVER_CONFIG } from "@norish/config/env-config-server";
 import {
   createRecipeWithRefs,
   dashboardRecipe,
@@ -6,6 +11,7 @@ import {
   updateRecipeWithRefs,
 } from "@norish/db";
 import { rateRecipe } from "@norish/db/repositories/ratings";
+import { serverLogger as log } from "@norish/shared-server/logger";
 import { FullRecipeInsertDTO, RecipeDashboardDTO } from "@norish/shared/contracts";
 
 import {
@@ -88,6 +94,69 @@ function unwrapSingleRootFolder(zip: JSZip): JSZip {
   }
 
   return zip;
+}
+
+function createArchiveRecipeId(): string {
+  // Archive import is the recipe-creation entry point for archived recipes, so
+  // each recipe sequence gets one ID here and that same ID must be reused for
+  // media storage, DTO construction, and final persistence.
+  return randomUUID();
+}
+
+function rewriteRecipeMediaUrl(url: string | null | undefined, fromRecipeId: string, toRecipeId: string) {
+  if (!url || !url.startsWith(`/recipes/${fromRecipeId}/`)) {
+    return url;
+  }
+
+  return `/recipes/${toRecipeId}${url.slice(`/recipes/${fromRecipeId}`.length)}`;
+}
+
+async function rehomeArchiveMediaToRecipe(
+  dto: FullRecipeInsertDTO,
+  targetRecipeId: string
+): Promise<FullRecipeInsertDTO> {
+  const sourceRecipeId = dto.id;
+
+  if (!sourceRecipeId || sourceRecipeId === targetRecipeId) {
+    return dto;
+  }
+
+  const sourceDir = path.join(SERVER_CONFIG.UPLOADS_DIR, "recipes", sourceRecipeId);
+  const targetDir = path.join(SERVER_CONFIG.UPLOADS_DIR, "recipes", targetRecipeId);
+
+  try {
+    await fs.access(sourceDir);
+    await fs.mkdir(targetDir, { recursive: true });
+    await fs.cp(sourceDir, targetDir, { recursive: true, force: true });
+    await fs.rm(sourceDir, { recursive: true, force: true });
+  } catch (error) {
+    log.warn(
+      { err: error, sourceRecipeId, targetRecipeId },
+      "Failed to move archive media to existing recipe directory"
+    );
+  }
+
+  return {
+    ...dto,
+    id: targetRecipeId,
+    image: rewriteRecipeMediaUrl(dto.image, sourceRecipeId, targetRecipeId),
+    images: dto.images?.map((image) => ({
+      ...image,
+      image: rewriteRecipeMediaUrl(image.image, sourceRecipeId, targetRecipeId) ?? image.image,
+    })),
+    videos: dto.videos?.map((video) => ({
+      ...video,
+      video: rewriteRecipeMediaUrl(video.video, sourceRecipeId, targetRecipeId) ?? video.video,
+      thumbnail: rewriteRecipeMediaUrl(video.thumbnail, sourceRecipeId, targetRecipeId) ?? video.thumbnail,
+    })),
+    steps: dto.steps.map((step) => ({
+      ...step,
+      images: step.images?.map((image) => ({
+        ...image,
+        image: rewriteRecipeMediaUrl(image.image, sourceRecipeId, targetRecipeId) ?? image.image,
+      })),
+    })),
+  };
 }
 
 /**
@@ -252,7 +321,9 @@ async function importRecipeItems(
           throw new Error("Cannot overwrite existing recipe without user context");
         }
 
-        await updateRecipeWithRefs(existingId, overwriteUserId, dto);
+        const overwriteDto = await rehomeArchiveMediaToRecipe(dto, existingId);
+
+        await updateRecipeWithRefs(existingId, overwriteUserId, overwriteDto);
 
         // Save imported rating if present and user is authenticated
         if (importedRating && userId) {
@@ -273,7 +344,12 @@ async function importRecipeItems(
         continue;
       }
 
-      const recipeId = dto.id ?? crypto.randomUUID();
+      const recipeId = dto.id;
+
+      if (!recipeId) {
+        throw new Error("Archive recipe missing preallocated recipe ID");
+      }
+
       const created = await createRecipeWithRefs(recipeId, userId, dto);
 
       // Save imported rating if present and user is authenticated
@@ -312,7 +388,7 @@ async function* generateMelaRecipes(
   const melaRecipes = await parseMelaArchive(zip);
 
   for (let i = 0; i < melaRecipes.length; i++) {
-    const dto = await parseMelaRecipeToDTO(melaRecipes[i]!);
+    const dto = await parseMelaRecipeToDTO(melaRecipes[i]!, createArchiveRecipeId());
 
     yield { dto, fileName: `recipe_${i + 1}.melarecipe` };
   }
@@ -350,6 +426,7 @@ async function* generateMealieRecipes(
         ingredients,
         instructions,
         lookups,
+        createArchiveRecipeId(),
         imageBuffer
       );
 
@@ -395,7 +472,7 @@ async function* generateMealieLegacyRecipes(
     try {
       const imageBuffer = await extractMealieLegacyImage(zip, folderName);
 
-      const dto = await parseMealieLegacyRecipeToDTO(recipe, imageBuffer);
+      const dto = await parseMealieLegacyRecipeToDTO(recipe, createArchiveRecipeId(), imageBuffer);
 
       // Use inline rating if present
       let importedRating: number | undefined;
@@ -428,7 +505,7 @@ async function* generateTandoorRecipes(
   const tandoorRecipes = await extractTandoorRecipes(zip);
 
   for (const { recipe, image, fileName } of tandoorRecipes) {
-    const dto = await parseTandoorRecipeToDTO(recipe, image);
+    const dto = await parseTandoorRecipeToDTO(recipe, createArchiveRecipeId(), image);
 
     yield { dto, fileName };
   }
@@ -443,7 +520,7 @@ async function* generatePaprikaRecipes(
   const paprikaRecipes = await extractPaprikaRecipes(zip);
 
   for (const { recipe, image, fileName } of paprikaRecipes) {
-    const dto = await parsePaprikaRecipeToDTO(recipe, image);
+    const dto = await parsePaprikaRecipeToDTO(recipe, createArchiveRecipeId(), image);
     const importedRating =
       recipe.rating && Number.isFinite(recipe.rating) && recipe.rating > 0
         ? Math.round(recipe.rating)

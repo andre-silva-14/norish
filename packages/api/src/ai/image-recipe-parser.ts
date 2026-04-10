@@ -1,11 +1,8 @@
+import { generateText, Output } from "ai";
+
 import type { ImageImportFile } from "@norish/queue/contracts/job-types";
 import type { AIResult } from "@norish/shared-server/ai/types/result";
 import type { FullRecipeInsertDTO } from "@norish/shared/contracts/dto/recipe";
-import type { RecipeExtractionOutput } from "./schemas/recipe.schema";
-
-import { randomUUID } from "crypto";
-
-import { generateText, Output } from "ai";
 import { isAIEnabled } from "@norish/config/server-config-loader";
 import { getGenerationSettings, getModels } from "@norish/shared-server/ai/providers";
 import {
@@ -16,7 +13,7 @@ import {
 } from "@norish/shared-server/ai/types/result";
 import { aiLogger } from "@norish/shared-server/logger";
 
-
+import type { RecipeExtractionOutput } from "./schemas/recipe.schema";
 import {
   getExtractionLogContext,
   normalizeExtractionOutput,
@@ -51,11 +48,13 @@ function buildImageMessageContent(prompt: string, files: ImageImportFile[]) {
 /**
  * Extract recipe from images using AI vision models.
  *
+ * @param recipeId - Recipe ID allocated by the import entry point
  * @param files - Array of image files (base64 encoded)
  * @param allergies - Optional list of allergens to detect
  * @returns AIResult with extracted recipe or error
  */
 export async function extractRecipeFromImages(
+  recipeId: string,
   files: ImageImportFile[],
   allergies?: string[]
 ): Promise<AIResult<FullRecipeInsertDTO>> {
@@ -117,9 +116,6 @@ export async function extractRecipeFromImages(
     }
 
     aiLogger.debug(getExtractionLogContext(jsonLd!, null), "AI vision response received");
-
-    // Generate recipe ID upfront for image storage paths
-    const recipeId = randomUUID();
 
     // Normalize using shared normalizer (no URL or images for image imports)
     const normalized = await normalizeExtractionOutput(jsonLd!, { recipeId });

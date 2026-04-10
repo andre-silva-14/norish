@@ -2,6 +2,7 @@ import type { AIResult } from "@norish/shared-server/ai/types/result";
 import type { RecipeCategory, Slot } from "@norish/shared/contracts";
 import type { FullRecipeInsertDTO } from "@norish/shared/contracts/dto/recipe";
 import type { SiteAuthTokenDecryptedDto } from "@norish/shared/contracts/dto/site-auth-tokens";
+
 import type { ImageImportFile } from "./contracts/job-types";
 
 export interface QueueParseRecipeResult {
@@ -34,7 +35,7 @@ export interface QueueMediaCleanupResult {
 
 export interface QueueApiHandlers {
   extractRecipeNodesFromJsonValue(input: unknown): Record<string, unknown>[];
-  normalizeRecipeFromJson(json: unknown, recipeId?: string): Promise<FullRecipeInsertDTO | null>;
+  normalizeRecipeFromJson(json: unknown, recipeId: string): Promise<FullRecipeInsertDTO | null>;
   parseCategories(recipeCategory: unknown): RecipeCategory[];
   parseTags(keywords: unknown): { name: string }[];
   extractRecipeWithAI(
@@ -52,6 +53,7 @@ export interface QueueApiHandlers {
     tokens?: SiteAuthTokenDecryptedDto[]
   ): Promise<QueueParseRecipeResult>;
   extractRecipeFromImages(
+    recipeId: string,
     files: ImageImportFile[],
     allergies?: string[]
   ): Promise<AIResult<FullRecipeInsertDTO>>;

@@ -1,10 +1,8 @@
+import { randomUUID } from "crypto";
+import YAML from "yaml";
+
 import type { FullRecipeInsertDTO } from "@norish/shared/contracts";
 import type { MeasurementSystem } from "@norish/shared/contracts/dto/recipe";
-import type { PasteImportJobData, StructuredPasteImportRecipe } from "../contracts/job-types";
-
-import { randomUUID } from "crypto";
-
-import YAML from "yaml";
 import { getUnits } from "@norish/config/server-config-loader";
 import { requireQueueApiHandler } from "@norish/queue/api-handlers";
 import { MAX_RECIPE_PASTE_CHARS } from "@norish/shared/contracts/uploads";
@@ -19,8 +17,15 @@ import {
 } from "@norish/shared/lib/helpers";
 import { normalizeUnit } from "@norish/shared/lib/unit-localization";
 
+import type { PasteImportJobData, StructuredPasteImportRecipe } from "../contracts/job-types";
 
 export const MAX_STRUCTURED_PASTE_RECIPES = 25;
+
+type StructuredRecipeNormalization = {
+  recipeId: ReturnType<typeof randomUUID>;
+  recipe: FullRecipeInsertDTO | null;
+  importedRating: number | null;
+};
 
 type PreparedPasteImport = Pick<
   PasteImportJobData,
@@ -171,7 +176,8 @@ function assertRecipePasteWithinLimit(value: unknown): void {
 }
 
 async function normalizeRecipeFromYamlValue(
-  rawRecipe: Record<string, unknown>
+  rawRecipe: Record<string, unknown>,
+  recipeId: string
 ): Promise<{ recipe: FullRecipeInsertDTO | null; importedRating: number | null }> {
   const parseCategories = requireQueueApiHandler("parseCategories");
   const units = await getUnits();
@@ -235,7 +241,7 @@ async function normalizeRecipeFromYamlValue(
       title.length === 0
         ? null
         : {
-            id: randomUUID(),
+            id: recipeId,
             name: title,
             description:
               typeof rawRecipe.description === "string"
@@ -276,23 +282,45 @@ async function normalizeRecipeFromYamlValue(
 async function normalizeStructuredRecipes(
   rawRecipes: Array<{ node: Record<string, unknown>; importedRating: number | null }>,
   normalizer: (
-    node: Record<string, unknown>
+    node: Record<string, unknown>,
+    recipeId: string
   ) => Promise<{ recipe: FullRecipeInsertDTO | null; importedRating: number | null }>
 ): Promise<StructuredPasteImportRecipe[]> {
-  const normalized = await Promise.all(rawRecipes.map(({ node }) => normalizer(node)));
+  // Structured paste is an entry point for recipe creation, so each recipe gets
+  // exactly one ID here and that same ID must flow through normalization and persistence.
+  const normalized: StructuredRecipeNormalization[] = await Promise.all(
+    rawRecipes.map(async ({ node }) => {
+      const recipeId = randomUUID();
+      const entry = await normalizer(node, recipeId);
+
+      return {
+        recipeId,
+        ...entry,
+      };
+    })
+  );
 
   return normalized
-    .filter((entry): entry is { recipe: FullRecipeInsertDTO; importedRating: number | null } =>
-      hasRecipeNameIngredientsAndSteps(entry.recipe)
+    .filter(
+      (
+        entry
+      ): entry is StructuredRecipeNormalization & {
+        recipe: FullRecipeInsertDTO;
+      } => hasRecipeNameIngredientsAndSteps(entry.recipe)
     )
-    .map((entry) => ({
-      recipeId: randomUUID(),
-      recipe: {
+    .map((entry): StructuredPasteImportRecipe => {
+      const recipe: FullRecipeInsertDTO = {
         ...entry.recipe,
+        id: entry.recipeId,
         url: entry.recipe.url ?? null,
-      },
-      importedRating: entry.importedRating,
-    }));
+      };
+
+      return {
+        recipeId: entry.recipeId,
+        recipe,
+        importedRating: entry.importedRating,
+      };
+    });
 }
 
 async function parseStructuredJson(text: string): Promise<StructuredPasteImportRecipe[] | null> {
@@ -321,8 +349,8 @@ async function parseStructuredJson(text: string): Promise<StructuredPasteImportR
 
   return normalizeStructuredRecipes(
     recipeNodes.map((node) => ({ node, importedRating: extractJsonLdRating(node) })),
-    async (node) => {
-      const recipe = await normalizeRecipeFromJson(node);
+    async (node, recipeId) => {
+      const recipe = await normalizeRecipeFromJson(node, recipeId);
 
       if (recipe) {
         recipe.url = null;

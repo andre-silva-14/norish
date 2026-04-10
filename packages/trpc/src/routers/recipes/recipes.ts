@@ -1,7 +1,8 @@
-import type { RecipeListContext } from "@norish/db";
-
 import { TRPCError } from "@trpc/server";
+import { randomUUID } from "node:crypto";
 import { z } from "zod";
+
+import type { RecipeListContext } from "@norish/db";
 import { canAccessResource, isAIEnabled as checkAIEnabled } from "@norish/auth/permissions";
 import { getRecipePermissionPolicy } from "@norish/config/server-config-loader";
 import {
@@ -44,7 +45,6 @@ import { FullRecipeSchema, RecipeListResultSchema } from "@norish/shared/contrac
 import { emitByPolicy } from "../../helpers";
 import { authedProcedure } from "../../middleware";
 import { router } from "../../trpc";
-
 import { recipeEmitter } from "./emitter";
 import { assertRecipeAccess, findRecipeForViewer, handleRecipeError } from "./helpers";
 import {
@@ -149,7 +149,7 @@ export const getProcedure = authedProcedure
   });
 
 const create = authedProcedure.input(FullRecipeInsertSchema).mutation(({ ctx, input }) => {
-  const recipeId = input.id ?? crypto.randomUUID();
+  const recipeId = input.id ?? randomUUID();
 
   log.info(
     { userId: ctx.user.id, recipeName: input.name, recipeId, providedId: input.id },
@@ -321,7 +321,7 @@ export const importFromUrlProcedure = authedProcedure
   .output(z.uuid())
   .mutation(async ({ ctx, input }) => {
     const { url, forceAI } = input;
-    const recipeId = crypto.randomUUID();
+    const recipeId = randomUUID();
 
     // Add job to queue - returns conflict status if duplicate in queue
     const queues = getQueues();
@@ -345,7 +345,7 @@ export const importFromUrlProcedure = authedProcedure
   });
 
 const reserveId = authedProcedure.query(() => {
-  const recipeId = crypto.randomUUID();
+  const recipeId = randomUUID();
 
   log.debug({ recipeId }, "Reserved recipe ID for step image uploads");
 
@@ -568,7 +568,7 @@ const importFromImagesProcedure = authedProcedure
       });
     }
 
-    const recipeId = crypto.randomUUID();
+    const recipeId = randomUUID();
 
     log.info(
       { userId: ctx.user.id, fileCount: files.length, recipeId },
