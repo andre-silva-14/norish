@@ -1,6 +1,23 @@
 "use client";
 
+import type { MeasurementSystem } from "@norish/shared/contracts";
+
 import { use, useEffect, useMemo, useState } from "react";
+import { ArrowsRightLeftIcon, MinusIcon, PlusIcon } from "@heroicons/react/16/solid";
+import {
+  Button,
+  Card,
+  CardBody,
+  CardHeader,
+  Divider,
+  Dropdown,
+  DropdownItem,
+  DropdownMenu,
+  DropdownTrigger,
+} from "@heroui/react";
+import { TRPCClientError } from "@trpc/client";
+import { useTranslations } from "next-intl";
+
 import AmountDisplayToggle from "@/app/(app)/recipes/[id]/components/amount-display-toggle";
 import AuthorChip from "@/app/(app)/recipes/[id]/components/author-chip";
 import { ReadonlyIngredientsList } from "@/app/(app)/recipes/[id]/components/ingredient-list";
@@ -22,22 +39,7 @@ import RecipeSkeleton from "@/components/skeleton/recipe-skeleton";
 import { TimerTicker } from "@/components/timer-dock";
 import { sharedRecipeShareHooks } from "@/hooks/recipes/shared-recipe-hooks";
 import { useSharePublicConfigQuery } from "@/hooks/recipes/use-share-public-config-query";
-import { ArrowsRightLeftIcon, MinusIcon, PlusIcon } from "@heroicons/react/16/solid";
-import {
-  Button,
-  Card,
-  CardBody,
-  CardHeader,
-  Divider,
-  Dropdown,
-  DropdownItem,
-  DropdownMenu,
-  DropdownTrigger,
-} from "@heroui/react";
-import { TRPCClientError } from "@trpc/client";
-import { useTranslations } from "next-intl";
 
-import type { MeasurementSystem } from "@norish/shared/contracts";
 
 type Props = {
   params: Promise<{ token: string }>;
@@ -47,6 +49,7 @@ type Props = {
 
 function formatServings(n: number): string {
   if (Number.isInteger(n)) return String(n);
+
   return n.toFixed(2).replace(/\.?0+$/, "");
 }
 
@@ -131,6 +134,7 @@ function ShareSystemSwitcher({
         selectionMode="single"
         onSelectionChange={(keys) => {
           const selected = Array.from(keys)[0] as MeasurementSystem | undefined;
+
           if (selected && selected !== activeSystem) onChange(selected);
         }}
       >
@@ -245,7 +249,7 @@ function SharedRecipePageDesktop({ token }: { token: string }) {
         </div>
 
         <div className="flex flex-col gap-6 md:col-span-1 lg:col-span-3">
-          <ReadonlyRecipeMedia recipe={recipe} rounded />
+          <ReadonlyRecipeMedia rounded recipe={recipe} />
 
           {recipe.notes && (
             <Card className="bg-content1 rounded-2xl shadow-md">
@@ -268,10 +272,10 @@ function SharedRecipePageDesktop({ token }: { token: string }) {
                 interactive
                 InstructionComponent={PublicSmartInstruction}
                 recipeId={token}
-                token={token}
                 recipeName={recipe.name}
                 steps={recipe.steps}
                 systemUsed={state.activeSystem}
+                token={token}
               />
             </CardBody>
           </Card>
@@ -377,10 +381,10 @@ function SharedRecipePageMobile({ token }: { token: string }) {
                 interactive
                 InstructionComponent={PublicSmartInstruction}
                 recipeId={token}
-                token={token}
                 recipeName={recipe.name}
                 steps={recipe.steps}
                 systemUsed={state.activeSystem}
+                token={token}
               />
             </div>
           </div>

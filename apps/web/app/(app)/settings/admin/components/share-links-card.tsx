@@ -8,10 +8,10 @@ export default function AdminShareLinksCard() {
 
   return (
     <ShareLinksTableCard
+      showOwner
       isLoading={isLoading}
       namespace="settings.admin.shareLinks"
       shares={shares}
-      showOwner
     />
   );
 }

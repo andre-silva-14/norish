@@ -1,10 +1,12 @@
+import type { ChildProcess } from "node:child_process";
+import type { ServerConfig } from "@norish/config/env-config-server";
+
 import { spawn } from "node:child_process";
 import { existsSync } from "node:fs";
 import { resolve } from "node:path";
 import { createInterface } from "node:readline";
-import type { ChildProcess } from "node:child_process";
 
-import type { ServerConfig } from "@norish/config/env-config-server";
+
 import {
   buildInternalParserApiUrl,
   INTERNAL_PARSER_API_HOST,
@@ -94,6 +96,7 @@ function signalParserProcess(child: ChildProcess, signal: NodeJS.Signals): void 
   if (process.platform !== "win32") {
     try {
       process.kill(-child.pid, signal);
+
       return;
     } catch {
       // Fall back to targeting the direct child when no process group exists.
@@ -108,6 +111,7 @@ export async function startEmbeddedParser(
 ): Promise<EmbeddedParserHandle | null> {
   if (await isParserHealthy(EMBEDDED_PARSER_HEALTHCHECK_TIMEOUT_MS)) {
     log.info({ parserApiUrl: INTERNAL_PARSER_API_URL }, "Using already-running local parser API");
+
     return null;
   }
 
@@ -164,11 +168,13 @@ export async function startEmbeddedParser(
   child.on("exit", (code, signal) => {
     if (isStopping) {
       log.info({ code, signal }, "Embedded parser API stopped");
+
       return;
     }
 
     if (!isReady) {
       log.error({ code, signal }, "Embedded parser exited before startup completed");
+
       return;
     }
 
@@ -193,6 +199,7 @@ export async function startEmbeddedParser(
     async stop() {
       if (isStopping) {
         await exitPromise;
+
         return;
       }
 
