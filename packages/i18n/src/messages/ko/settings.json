@@ -492,6 +492,7 @@
       "temperature": "온도: {value}",
       "temperatureHint": "낮음 = 더 집중적, 높음 = 더 창의적",
       "maxTokens": "최대 토큰",
+      "requestTimeout": "요청 제한 시간 (ms)",
       "autoTagAllergies": "알러지 태그 자동 감지",
       "autoTagAllergiesDescription": "레시피를 가져올 때 알러지 관련 태그를 자동으로 추가합니다.",
       "alwaysUseAI": "항상 AI 가져오기 사용",

@@ -492,6 +492,7 @@
       "temperature": "Temperatuur: {value}",
       "temperatureHint": "Lager = gefocuster, Hoger = creatiever",
       "maxTokens": "Max Tokens",
+      "requestTimeout": "Time-out van aanvraag (ms)",
       "autoTagAllergies": "Allergietags automatisch detecteren",
       "autoTagAllergiesDescription": "Voeg automatisch allergiegerelateerde tags toe bij het importeren van recepten",
       "alwaysUseAI": "Altijd AI gebruiken voor import",

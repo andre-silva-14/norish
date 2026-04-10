@@ -492,6 +492,7 @@
       "temperature": "Température : {value}",
       "temperatureHint": "Bas = plus précis, Haut = plus créatif",
       "maxTokens": "Tokens max",
+      "requestTimeout": "Délai d'expiration (ms)",
       "autoTagAllergies": "Détection auto des tags d’allergies",
       "autoTagAllergiesDescription": "Ajoute automatiquement des tags liés aux allergies lors de l’import",
       "alwaysUseAI": "Toujours utiliser l’import IA",

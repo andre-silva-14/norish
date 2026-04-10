@@ -398,7 +398,7 @@ export default function AIConfigForm({ onDirtyChange }: AIConfigFormProps) {
 
       <Input
         isDisabled={!enabled}
-        label="Request Timeout (ms)"
+        label={t("requestTimeout")}
         type="number"
         value={timeoutMs.toString()}
         onValueChange={(v) => setTimeoutMs(parseInt(v) || 300000)}
@@ -445,9 +445,8 @@ export default function AIConfigForm({ onDirtyChange }: AIConfigFormProps) {
 
       {testResult && (
         <div
-          className={`flex items-center gap-2 rounded-lg p-2 ${
-            testResult.success ? "bg-success-100 text-success-700" : "bg-danger-100 text-danger-700"
-          }`}
+          className={`flex items-center gap-2 rounded-lg p-2 ${testResult.success ? "bg-success-100 text-success-700" : "bg-danger-100 text-danger-700"
+            }`}
         >
           {testResult.success ? (
             <>

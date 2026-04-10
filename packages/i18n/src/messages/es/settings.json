@@ -492,6 +492,7 @@
       "temperature": "Temperature: {value}",
       "temperatureHint": "Más bajo = más centrado, Más alto = más creativo",
       "maxTokens": "Máx. tokens",
+      "requestTimeout": "Tiempo de espera de la solicitud (ms)",
       "autoTagAllergies": "Detectar etiquetas de alergias automáticamente",
       "autoTagAllergiesDescription": "Añadir etiquetas relacionadas con alergias automáticamente al importar recetas",
       "alwaysUseAI": "Usar siempre IA para importar",

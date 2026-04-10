@@ -492,6 +492,7 @@
       "temperature": "Temperatur: {value}",
       "temperatureHint": "Lavere = mere fokuseret, Højere = mere kreativ",
       "maxTokens": "Maks. tokens",
+      "requestTimeout": "Timeout for anmodning (ms)",
       "autoTagAllergies": "Registrér allergentags automatisk",
       "autoTagAllergiesDescription": "Tilføj automatisk allergenrelaterede tags ved import af opskrifter",
       "alwaysUseAI": "Brug altid AI-import",
