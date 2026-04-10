@@ -1,10 +1,8 @@
 import { useUserContext } from "@/context/user-context";
-import { useTRPC } from "@/providers/trpc-provider";
 
-import { createConfigHooks } from "@norish/shared-react/hooks";
 import { getTimersEnabledPreference } from "@norish/shared/lib/user-preferences";
 
-const sharedConfigHooks = createConfigHooks({ useTRPC });
+import { sharedConfigHooks } from "./shared-config-hooks";
 
 /**
  * Hook to check if recipe timers are enabled globally AND for the current user.

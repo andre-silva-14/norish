@@ -11,6 +11,8 @@
 
 // Import defaults for fallback when DB has no value
 import { getConfig } from "@norish/db/repositories/server-config";
+import { DEFAULT_LOCALE } from "@norish/i18n/config";
+import { getBundledLocales } from "@norish/i18n/locales";
 
 import type {
   AIConfig,
@@ -231,23 +233,15 @@ export async function getAutoTaggingMode(): Promise<AutoTaggingMode> {
 /**
  * Default locale configuration with all available locales.
  * To add a new locale:
- * 1. Add translation files to i18n/messages/{locale}/
- * 2. Add the locale entry here
+ * 1. Add the locale entry to `@norish/i18n/locales`
+ * 2. Add translation files to `@norish/i18n/messages/{locale}`
+ * 3. Register static message loaders in `@norish/i18n/messages`
  */
 export const DEFAULT_LOCALE_CONFIG: I18nLocaleConfig = {
-  defaultLocale: "en",
-  locales: {
-    en: { name: "English", enabled: true },
-    nl: { name: "Nederlands", enabled: true },
-    "de-formal": { name: "Deutsch (Sie)", enabled: true },
-    "de-informal": { name: "Deutsch (Du)", enabled: true },
-    fr: { name: "Français", enabled: true },
-    es: { name: "Español", enabled: true },
-    ru: { name: "Русский", enabled: true },
-    ko: { name: "한국어", enabled: true },
-    pl: { name: "Polski", enabled: true },
-    da: { name: "Dansk", enabled: true },
-  },
+  defaultLocale: DEFAULT_LOCALE,
+  locales: Object.fromEntries(
+    getBundledLocales().map((locale) => [locale.code, { name: locale.name, enabled: true }])
+  ),
 };
 
 /**
