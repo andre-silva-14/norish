@@ -10,11 +10,11 @@
     "remove": "Rimuovi",
     "close": "Chiudi",
     "apply": "Applica",
-    "reset": "Ripristina",
+    "reset": "Reimposta",
     "clear": "Cancella",
     "confirm": "Conferma",
     "back": "Indietro",
-    "next": "Successivo",
+    "next": "Avanti",
     "done": "Fatto",
     "retry": "Riprova",
     "submit": "Invia",
@@ -22,12 +22,12 @@
     "filter": "Filtra",
     "sort": "Ordina",
     "import": "Importa",
-    "aiImport": "Importa con AI",
-    "importWithAI": "Importa con AI",
-    "goHome": "Vai alla Home",
+    "aiImport": "Importazione IA",
+    "importWithAI": "Importa con IA",
+    "goHome": "Vai alla home",
     "test": "Test",
     "format": "Formato",
-    "restoreDefaults": "Ripristina impostazioni predefinite",
+    "restoreDefaults": "Ripristina predefiniti",
     "saveChanges": "Salva modifiche",
     "revealSecret": "Mostra segreto",
     "hideSecret": "Nascondi segreto",
@@ -52,7 +52,7 @@
     "modeAny": "Qualsiasi",
     "tags": "Tag",
     "searchTags": "Cerca tag",
-    "favoritesAndRating": "Preferiti & Valutazione",
+    "favoritesAndRating": "Preferiti e valutazione",
     "favorites": "Preferiti",
     "cookingTime": "Tempo di cottura",
     "cookingTimeUnder15": "<15 min",
@@ -72,89 +72,89 @@
   },
   "time": {
     "minutes": "min",
-    "hours": "hr"
+    "hours": "ore"
   },
   "validation": {
     "required": "Questo campo è obbligatorio",
-    "invalidUrl": "Per favore, inserisci un URL valido"
+    "invalidUrl": "Inserisci un URL valido"
   },
   "errors": {
-    "operationFailed": "Operazione fallita",
+    "operationFailed": "Operazione non riuscita",
     "nameCannotBeEmpty": "Il nome non può essere vuoto",
-    "technicalDetails": "Qualcosa è andato storto. Controlla la console del browser per dettagli tecnici."
+    "technicalDetails": "Qualcosa è andato storto. Controlla la console del browser per i dettagli tecnici."
   },
   "slots": {
     "breakfast": "Colazione",
     "lunch": "Pranzo",
     "dinner": "Cena",
     "snack": "Spuntino",
-    "chooseSlot": "Scegli pasto"
+    "chooseSlot": "Scegli fascia"
   },
   "connection": {
     "connecting": "Connessione a Norish...",
-    "syncing": "Sincronizzazione, per favore attendere...",
-    "checkInternet": "Per favore, controlla la tua connessione ad internet",
-    "gettingUpdates": "Aspetta mentre reperiamo gli ultimi aggiornamenti",
-    "offlineBanner": "Sei offline, mostriamo i dati in cache",
-    "serverUnreachableBanner": "Impossibile raggiungere il server Norish, mostriamo i dati in cache"
+    "syncing": "Sincronizzazione in corso, attendere...",
+    "checkInternet": "Controlla la tua connessione internet",
+    "gettingUpdates": "Un momento mentre recuperiamo gli ultimi aggiornamenti",
+    "offlineBanner": "Sei offline, visualizzazione dei dati memorizzati nella cache",
+    "serverUnreachableBanner": "Impossibile raggiungere il server Norish, visualizzazione dei dati memorizzati nella cache"
   },
   "language": {
     "title": "Lingua"
   },
   "notFound": {
     "code": "404",
-    "title": "Pagina Non Trovata",
-    "message": "Ops! Nora non ha trovato cosa stavi cercando.\nLa pagina potrebbe essere stata spostata oppure non esistere."
+    "title": "Pagina non trovata",
+    "message": "Ops! Nora non ha trovato quello che stai cercando.\nLa pagina potrebbe essere stata spostata o non esiste."
   },
   "import": {
     "url": {
       "title": "Importa ricetta",
-      "label": "URL ricetta",
+      "label": "URL della ricetta",
       "placeholder": "https://esempio.com/la-tua-ricetta",
-      "failed": "Impossibile importare la ricetta",
-      "failedWithAI": "Impossibile importare la ricetta usando l'AI"
+      "failed": "Importazione della ricetta non riuscita",
+      "failedWithAI": "Importazione della ricetta con IA non riuscita"
     },
     "paste": {
-      "title": "Importa incollando",
+      "title": "Importa da testo incollato",
       "label": "Testo della ricetta o JSON-LD",
-      "placeholder": "Incolla una ricetta (testo libero) o inserisci un JSON-LD qui...",
+      "placeholder": "Incolla una ricetta (testo libero) o JSON-LD qui...",
       "characters": "{count} / {max} caratteri",
-      "tooLarge": "Testo incollato troppo grande",
+      "tooLarge": "Testo troppo lungo",
       "maxCharacters": "Massimo {max} caratteri consentiti",
       "importing": "Importazione ricetta...",
-      "importingWithAI": "Importazione ricetta con AI...",
-      "inProgress": "Importazione in corso, per favore attendi...",
-      "failed": "Importazione fallita"
+      "importingWithAI": "Importazione ricetta con IA...",
+      "inProgress": "Importazione in corso, attendere...",
+      "failed": "Importazione non riuscita"
     },
     "image": {
-      "title": "Importa da Immagine",
-      "dropzone": "Trascina le immagini qui o clicca per cercare",
+      "title": "Importa da immagine",
+      "dropzone": "Trascina le immagini qui o clicca per sfogliare",
       "paste": "per incollare",
-      "formats": "Supporta JPG, PNG, WebP. Non più di 10MB per file.",
-      "invalidType": "Formato del file non valido",
-      "notSupported": "{name} non è un formato di immagine supportato",
+      "formats": "Supporta JPG, PNG, WebP. Max 10MB per file.",
+      "invalidType": "Tipo di file non valido",
+      "notSupported": "{name} non è un formato immagine supportato",
       "tooLarge": "File troppo grande",
       "exceeds": "{name} supera il limite di 10MB",
       "tooMany": "Troppi file",
-      "maxFiles": "Sono consentiti massimo {max} file",
+      "maxFiles": "Massimo {max} file consentiti",
       "importing": "Importazione ricetta dalle immagini...",
-      "analyzing": "Analisi delle immagini in corso, per favore attendi...",
-      "failed": "Importazione fallita",
-      "selectedCount": "{count} immagini selezionate - saranno combinate in un'unica ricetta",
+      "analyzing": "Analisi delle immagini in corso, attendere...",
+      "failed": "Importazione non riuscita",
+      "selectedCount": "{count} immagini selezionate - verranno combinate in una ricetta",
       "library": "Libreria",
       "takePhoto": "Scatta foto",
       "counter": "{count} / {max} foto",
-      "importFromCount": "Importa da {count, plural, one {# Foto} other {# Foto}}"
+      "importFromCount": "Importa da {count, plural, one {# foto} other {# foto}}"
     },
     "menu": {
-      "description": "Importa da URL, scansiona una foto, o inizia da zero."
+      "description": "Importa da un URL, scansiona una foto o parti da zero."
     }
   },
   "formatting": {
-    "title": "Consigli per la Formattazione",
+    "title": "Suggerimenti di formattazione",
     "heading": "Inizia una riga con <strong>#</strong> per un titolo",
-    "bold": "Racchiudi con <strong>**doppi asterischi**</strong> per il grassetto",
-    "recipeLink": "Digita <strong>/nome ricetta</strong> per inserire un collegamento ad un'altra ricetta",
+    "bold": "Racchiudi tra <strong>**doppi asterischi**</strong> per il grassetto",
+    "recipeLink": "Digita <strong>/nome ricetta</strong> per collegare un'altra ricetta",
     "helpAriaLabel": "Aiuto formattazione"
   },
   "tagInput": {
@@ -164,8 +164,8 @@
     "title": "Ripeti",
     "frequency": "Frequenza",
     "interval": "Intervallo",
-    "onDay": "Giorno",
-    "daily": "Giornaliera",
+    "onDay": "Il giorno",
+    "daily": "Giornaliero",
     "weekly": "Settimanale",
     "monthly": "Mensile",
     "day": "giorno",
@@ -176,8 +176,8 @@
     "months": "mesi",
     "next": "Prossimo:",
     "every": "Ogni",
-    "everyOther": "Ogni due",
-    "on": "di",
+    "everyOther": "Ogni altro",
+    "on": "il",
     "today": "oggi",
     "tomorrow": "domani",
     "weekdays": {
@@ -203,15 +203,15 @@
     "new": "Nuovo"
   },
   "timer": {
-    "done": "Fatto",
-    "done_action": "Fatto",
+    "done": "Finito",
+    "done_action": "Finito",
     "one": "Timer",
     "other": "Timer",
     "label_one": "1 Timer",
     "label_other": "{count} Timer",
-    "notification_title": "Timer Completato",
-    "notification_body": "{label} è fatto!",
-    "notifications_disabled": "Notifiche disabilitate",
-    "notifications_disabled_hint": "Attiva le notifiche nelle impostazioni del tuo browser per essere avvisato quando i timer finiscono."
+    "notification_title": "Timer completato",
+    "notification_body": "{label} è pronto!",
+    "notifications_disabled": "Le notifiche sono disabilitate",
+    "notifications_disabled_hint": "Abilita le notifiche nelle impostazioni del browser per ricevere avvisi quando i timer terminano in background."
   }
 }

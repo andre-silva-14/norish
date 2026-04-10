@@ -6,7 +6,7 @@
     },
     "importUrl": {
       "title": "Importa da URL",
-      "description": "Incolla il link ad una ricetta"
+      "description": "Incolla un link di una ricetta"
     },
     "settings": {
       "title": "Impostazioni",
@@ -22,7 +22,7 @@
     "loading": "Caricamento…",
     "light": "Modalità chiara",
     "dark": "Modalità scura",
-    "system": "Default di sistema"
+    "system": "Predefinito di sistema"
   },
   "nav": {
     "home": "Ricette",
@@ -42,8 +42,8 @@
     "uploadingFile": "Caricamento file…",
     "processing": "Elaborazione: {details}",
     "complete": "Completato: {details}",
-    "imported": "{count} importati",
-    "skipped": "{count} saltati",
+    "imported": "{count} importate",
+    "skipped": "{count} saltate",
     "errors": "{count} errori",
     "ofTotal": "{current} di {total}"
   }

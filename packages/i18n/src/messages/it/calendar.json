@@ -7,11 +7,11 @@
     "scrollToToday": "Vai a oggi"
   },
   "editNote": {
-    "title": "Modifica Nota",
+    "title": "Modifica nota",
     "noteLabel": "Nota",
     "notePlaceholder": "Inserisci nota...",
     "date": "Data",
-    "slot": "Pasto"
+    "slot": "Fascia"
   },
   "navigation": {
     "previousMonth": "Mese precedente",
@@ -29,9 +29,9 @@
     "sun": "Dom"
   },
   "timeline": {
-    "noItems": "Nulla in pianificazione",
+    "noItems": "Nessun elemento pianificato",
     "goToRecipe": "Vai alla ricetta",
-    "addItem": "Aggiungi",
+    "addItem": "Aggiungi elemento",
     "untitled": "Senza titolo",
     "serving": "porzione",
     "servings": "porzioni",
@@ -40,18 +40,18 @@
     "note": "Nota"
   },
   "editPlannedRecipe": {
-    "title": "Modifica Ricetta Pianificata",
+    "title": "Modifica ricetta pianificata",
     "date": "Data",
-    "slot": "Pasto"
+    "slot": "Fascia"
   },
   "panel": {
-    "addToCalendar": "Aggiungi al Calendario",
-    "addRecipe": "Aggiungi Ricetta",
+    "addToCalendar": "Aggiungi al calendario",
+    "addRecipe": "Aggiungi ricetta",
     "noDaysAvailable": "Nessun giorno disponibile.",
-    "searchPlaceholder": "Ricerca ricette o aggiungi note...",
-    "addNote": "Aggiungi Nota: {input}",
-    "randomRecipe": "Ricetta a Caso",
+    "searchPlaceholder": "Cerca ricette o aggiungi note...",
+    "addNote": "Aggiungi nota: {input}",
+    "randomRecipe": "Ricetta casuale",
     "noRecipesFound": "Nessuna ricetta trovata.",
-    "failedToLoadRecipes": "Impossibile caricare le ricette."
+    "failedToLoadRecipes": "Caricamento ricette non riuscito."
   }
 }
