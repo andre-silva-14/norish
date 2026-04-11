@@ -17,6 +17,8 @@ import { createOllama } from "ai-sdk-ollama";
 import { getAIConfig } from "@norish/config/server-config-loader";
 import { aiLogger } from "@norish/shared-server/logger";
 
+import { createFetchWithTimeout } from "./ai-fetcher";
+
 
 /**
  * Get configured AI models.
@@ -46,30 +48,10 @@ export function createModelsFromConfig(config: {
 }): ModelConfig {
   const { provider, model, visionModel, endpoint, apiKey, timeoutMs } = config;
 
-  aiLogger.debug({ provider, model, visionModel, timeoutMs }, "Creating AI models");
+  aiLogger.debug({ provider, model, visionModel }, "Creating AI models");
 
-  // Create a custom fetch if timeout is over 4.5 minutes (or to enforce custom timeout)
-  // Node's default native fetch (Undici) hard-times-out at 5 minutes wait for headers.
-  let customFetch: typeof fetch | undefined;
-
-  if (timeoutMs) {
-    customFetch = async (url: URL | RequestInfo, init?: RequestInit) => {
-      // Use dynamic require instead of checking via TS to avoid missing types 
-      // Built-in to Node via standard library or AI-SDK bundled dependencies
-      const { Agent } = require('undici');
-      const agent = new Agent({
-        headersTimeout: timeoutMs,
-        bodyTimeout: timeoutMs,
-      });
-
-      const fetchOptions: RequestInit & { dispatcher?: unknown } = {
-        ...init,
-        dispatcher: agent,
-      };
-
-      return fetch(url, fetchOptions);
-    };
-  }
+  // Create a custom fetch that maintains a singleton Undici Agent cache
+  const customFetch = createFetchWithTimeout(timeoutMs as number);
 
   switch (provider) {
     case "openai": {
@@ -237,6 +219,6 @@ export async function getGenerationSettings(): Promise<GenerationSettings> {
   return {
     temperature: config?.temperature,
     maxOutputTokens: config?.maxTokens,
-    ...(config?.timeoutMs ? { abortSignal: AbortSignal.timeout(config.timeoutMs) } : {}),
+    abortSignal: AbortSignal.timeout(config?.timeoutMs as number),
   };
 }
