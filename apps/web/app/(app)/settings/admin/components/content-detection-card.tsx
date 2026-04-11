@@ -6,7 +6,6 @@ import { Accordion, AccordionItem, Card, CardBody, CardHeader } from "@heroui/re
 import { useTranslations } from "next-intl";
 import { ServerConfigKeys } from "@norish/config/zod/server-config";
 
-import NewFeatureChip from "../../components/new-feature-chip";
 import { useAdminSettingsContext } from "../context";
 
 import JsonEditor from "./json-editor";
@@ -62,7 +61,6 @@ export default function ContentDetectionCard() {
               <div className="flex items-center gap-2">
                 {t("timerKeywords.title")}
                 {dirtySections.timerKeywords && <UnsavedChangesChip />}
-                <NewFeatureChip />
               </div>
             }
           >

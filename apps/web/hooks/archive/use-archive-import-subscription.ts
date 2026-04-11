@@ -24,7 +24,7 @@ export function useArchiveImportSubscription(): void {
   // Subscribe to progress events (user-scoped)
   useSubscription(
     trpc.archive.onArchiveProgress.subscriptionOptions(undefined, {
-      onData: (payload: any) => {
+      onData: ({ payload }: any) => {
         log.debug({ payload }, "Progress event received");
         setImportState((prev) => {
           // If no previous state or not importing, initialize with progress data
@@ -59,7 +59,7 @@ export function useArchiveImportSubscription(): void {
   // Subscribe to completion events (user-scoped)
   useSubscription(
     trpc.archive.onArchiveCompleted.subscriptionOptions(undefined, {
-      onData: (payload: any) => {
+      onData: ({ payload }: any) => {
         log.debug({ payload }, "Completion event received");
         // Update state to mark import as complete
         setImportState((prev) => {

@@ -1,9 +1,14 @@
 "use client";
 
+
 import type { RecipeIdResult } from "@norish/shared-react/hooks";
 
-import { sharedRecipeFamilyHooks } from "./shared-recipe-hooks";
+import { createUseRecipeId } from "@norish/shared-react/hooks/recipes/recipe";
+
+import { useTRPC } from "@/app/providers/trpc-provider";
+
+const useSharedRecipeId = createUseRecipeId({ useTRPC });
 
 export type { RecipeIdResult };
 
-export const useRecipeId = sharedRecipeFamilyHooks.useRecipeId;
+export const useRecipeId = useSharedRecipeId;

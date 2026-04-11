@@ -10,10 +10,12 @@ import { useTRPC } from "@/app/providers/trpc-provider";
 
 export type UserAllergiesData = {
   allergies: string[];
+  version: number;
 };
 
 export type UserCacheHelpers = {
   getUserSettingsData: () => UserSettingsDto | undefined;
+  getAllergiesData: () => UserAllergiesData | undefined;
   setUserSettingsData: (
     updater: (prev: UserSettingsDto | undefined) => UserSettingsDto | undefined
   ) => void;
@@ -51,6 +53,11 @@ export function useUserCacheHelpers(): UserCacheHelpers {
     [queryClient, userQueryKey]
   );
 
+  const getAllergiesData = useCallback(
+    () => queryClient.getQueryData<UserAllergiesData>(allergiesQueryKey),
+    [queryClient, allergiesQueryKey]
+  );
+
   const setAllergiesData = useCallback(
     (updater: (prev: UserAllergiesData | undefined) => UserAllergiesData | undefined) => {
       queryClient.setQueryData<UserAllergiesData>(allergiesQueryKey, updater);
@@ -64,6 +71,7 @@ export function useUserCacheHelpers(): UserCacheHelpers {
 
   return {
     getUserSettingsData,
+    getAllergiesData,
     setUserSettingsData,
     setAllergiesData,
     invalidate,

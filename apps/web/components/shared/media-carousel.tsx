@@ -265,9 +265,9 @@ export default function MediaCarousel({
             <VideoPlayer
               className="h-full w-full"
               duration={item.duration}
-              onControlsVisibilityChange={onActiveVideoControlsVisibilityChange}
               poster={item.thumbnail || undefined}
               src={item.src}
+              onControlsVisibilityChange={onActiveVideoControlsVisibilityChange}
             />
           ) : hasError(item.src) ? (
             <FallbackPlaceholder />
@@ -332,9 +332,9 @@ export default function MediaCarousel({
               <VideoPlayer
                 className="h-full w-full"
                 duration={sortedItems[currentIndex].duration}
-                onControlsVisibilityChange={onActiveVideoControlsVisibilityChange}
                 poster={sortedItems[currentIndex].thumbnail || undefined}
                 src={sortedItems[currentIndex].src}
+                onControlsVisibilityChange={onActiveVideoControlsVisibilityChange}
               />
             ) : hasError(sortedItems[currentIndex].src) ? (
               <FallbackPlaceholder />

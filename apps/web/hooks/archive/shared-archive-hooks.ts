@@ -10,7 +10,6 @@ import { useTRPC } from "@/app/providers/trpc-provider";
 export const sharedArchiveHooks = createArchiveHooks({
   useTRPC,
   useMutationToastAdapter: () => {
-     
     const tErrors = useTranslations("common.errors");
 
     return {

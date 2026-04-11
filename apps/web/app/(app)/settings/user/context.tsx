@@ -14,7 +14,6 @@ const { UserSettingsProvider, useUserSettingsContext } = createUserSettingsConte
   useUserSettingsQuery,
   useUserMutations,
   useErrorHandler: () => {
-     
     const tErrors = useTranslations("common.errors");
 
     return {

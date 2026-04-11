@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useRef, useState } from "react";
+import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { PhotoIcon, SparklesIcon, XMarkIcon } from "@heroicons/react/16/solid";
 import {
@@ -224,10 +225,13 @@ export default function ImportFromImageModal({ isOpen, onOpenChange }: ImportFro
                 <div className="mt-4 grid grid-cols-4 gap-2">
                   {files.map(({ id, file, preview }) => (
                     <div key={id} className="group relative">
-                      <img
+                      <Image
+                        unoptimized
                         alt={file.name}
                         className="h-20 w-full rounded-lg object-cover"
+                        height={80}
                         src={preview}
+                        width={160}
                       />
                       <button
                         className="bg-danger absolute -top-1 -right-1 flex h-5 w-5 items-center justify-center rounded-full text-white opacity-0 transition-opacity group-hover:opacity-100"

@@ -1,9 +1,9 @@
-import type { ServerConfigKey, ServerConfigMetadata } from "../zodSchemas/server-config";
+import { eq, sql } from "drizzle-orm";
 
-import { eq } from "drizzle-orm";
-import { dbLogger } from "@norish/db/logger";
 import { decrypt, encrypt } from "@norish/auth/crypto";
+import { dbLogger } from "@norish/db/logger";
 
+import type { ServerConfigKey, ServerConfigMetadata } from "../zodSchemas/server-config";
 import { db } from "../drizzle";
 import { serverConfig } from "../schema/server-config";
 import { SENSITIVE_CONFIG_KEYS, validateConfigValue } from "../zodSchemas/server-config";
@@ -85,6 +85,7 @@ export async function setConfig(
           isSensitive: true,
           updatedBy: userId,
           updatedAt: now,
+          version: sql`${serverConfig.version} + 1`,
         })
         .where(eq(serverConfig.key, key));
     } else {
@@ -108,6 +109,7 @@ export async function setConfig(
           isSensitive: false,
           updatedBy: userId,
           updatedAt: now,
+          version: sql`${serverConfig.version} + 1`,
         })
         .where(eq(serverConfig.key, key));
     } else {

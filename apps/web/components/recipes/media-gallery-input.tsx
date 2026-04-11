@@ -46,6 +46,7 @@ export interface RecipeGalleryMedia {
   thumbnail?: string | null;
   duration?: number | null;
   order: number;
+  version?: number;
 }
 
 export interface MediaGalleryInputProps {
@@ -59,7 +60,12 @@ export interface MediaGalleryInputProps {
 interface SortableMediaItemProps {
   item: RecipeGalleryMedia;
   index: number;
-  onDelete: (id: string | undefined, src: string, type: "image" | "video") => void;
+  onDelete: (
+    id: string | undefined,
+    src: string,
+    type: "image" | "video",
+    version?: number
+  ) => void;
   isFirstImage: boolean;
 }
 
@@ -125,7 +131,7 @@ function SortableMediaItem({ item, index, onDelete, isFirstImage }: SortableMedi
       <button
         className="bg-danger absolute top-2 right-2 z-10 flex h-6 w-6 items-center justify-center rounded-full text-white shadow"
         type="button"
-        onClick={() => onDelete(item.id, item.src, item.type)}
+        onClick={() => onDelete(item.id, item.src, item.type, item.version)}
       >
         <XMarkIcon className="h-3.5 w-3.5" />
       </button>
@@ -302,6 +308,7 @@ export default function MediaGalleryInput({
               thumbnail: result.thumbnail,
               duration: result.duration,
               order: result.order ?? nextOrder,
+              version: result.version,
             };
 
             onChange([...media, newMedia]);
@@ -318,6 +325,7 @@ export default function MediaGalleryInput({
               type: "image",
               src: result.url,
               order: result.order ?? nextOrder,
+              version: result.version,
             };
 
             onChange([...media, newMedia]);
@@ -349,7 +357,7 @@ export default function MediaGalleryInput({
   );
 
   const handleDelete = useCallback(
-    async (id: string | undefined, src: string, type: "image" | "video") => {
+    async (id: string | undefined, src: string, type: "image" | "video", version?: number) => {
       const newMedia = media.filter((m) => m.src !== src);
       const reordered = newMedia.map((m, idx) => ({ ...m, order: idx }));
 
@@ -358,9 +366,9 @@ export default function MediaGalleryInput({
       try {
         if (id) {
           if (type === "video") {
-            await deleteGalleryVideo(id);
+            await deleteGalleryVideo(id, version ?? 1);
           } else {
-            await deleteGalleryImage(id);
+            await deleteGalleryImage(id, version ?? 1);
           }
         }
       } catch (err) {

@@ -35,6 +35,7 @@ export interface RecipeGalleryImage {
   id?: string;
   image: string;
   order: number;
+  version?: number;
 }
 
 export interface ImageGalleryInputProps {
@@ -47,7 +48,7 @@ export interface ImageGalleryInputProps {
 interface SortableImageItemProps {
   item: RecipeGalleryImage;
   index: number;
-  onDelete: (id: string | undefined, imageUrl: string) => void;
+  onDelete: (id: string | undefined, imageUrl: string, version?: number) => void;
 }
 
 function SortableImageItem({ item, index, onDelete }: SortableImageItemProps) {
@@ -99,7 +100,7 @@ function SortableImageItem({ item, index, onDelete }: SortableImageItemProps) {
       <button
         className="bg-danger absolute top-2 right-2 z-10 flex h-6 w-6 items-center justify-center rounded-full text-white shadow"
         type="button"
-        onClick={() => onDelete(item.id, item.image)}
+        onClick={() => onDelete(item.id, item.image, item.version)}
       >
         <XMarkIcon className="h-3.5 w-3.5" />
       </button>
@@ -187,6 +188,7 @@ export default function ImageGalleryInput({
           id: result.id,
           image: result.url,
           order: result.order ?? nextOrder,
+          version: result.version,
         };
 
         onChange([...images, newImage]);
@@ -202,7 +204,7 @@ export default function ImageGalleryInput({
     }
   };
 
-  const handleDelete = async (id: string | undefined, imageUrl: string) => {
+  const handleDelete = async (id: string | undefined, imageUrl: string, version?: number) => {
     const newImages = images.filter((img) => img.image !== imageUrl);
     const reordered = newImages.map((img, idx) => ({ ...img, order: idx }));
 
@@ -210,7 +212,7 @@ export default function ImageGalleryInput({
 
     try {
       if (id) {
-        await deleteGalleryImage(id);
+        await deleteGalleryImage(id, version ?? 1);
       }
     } catch (err) {
       log.error({ err }, "Failed to delete gallery image");

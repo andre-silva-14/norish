@@ -1,10 +1,8 @@
 "use client";
 
-import { useMutation } from "@tanstack/react-query";
 import { TRPCClientError } from "@trpc/client";
 import { createRecipeDetailContext } from "@norish/shared-react/hooks";
 
-import { useTRPC } from "@/app/providers/trpc-provider";
 import { useRecipesContext } from "@/context/recipes-context";
 import { useFavoritesMutation } from "@/hooks/favorites";
 import { useRatingQuery, useRatingsMutation } from "@/hooks/ratings";
@@ -15,13 +13,16 @@ import {
   useAutoCategorizationMutation,
   useAutoTagging,
   useAutoTaggingMutation,
+  useConvertMutation,
   useNutritionMutation,
   useNutritionQuery,
   useNutritionSubscription,
   useRecipeQuery,
   useRecipeSubscription,
 } from "@/hooks/recipes";
+import { sharedRecipeShareHooks } from "@/hooks/recipes/shared-recipe-hooks";
 import { useActiveAllergies } from "@/hooks/user";
+
 
 const {
   RecipeDetailProvider: RecipeContextProvider,
@@ -30,6 +31,9 @@ const {
 } = createRecipeDetailContext({
   useRecipeQuery,
   useRecipeSubscription,
+  useRecipeSharesQuery: sharedRecipeShareHooks.useRecipeSharesQuery,
+  useRecipeShareSubscription: sharedRecipeShareHooks.useRecipeShareSubscription,
+  useRecipeShareMutations: sharedRecipeShareHooks.useRecipeShareMutations,
   useNutritionQuery,
   useNutritionMutation,
   useNutritionSubscription,
@@ -40,17 +44,10 @@ const {
   useAllergyDetectionMutation,
   useAllergyDetection,
   useActiveAllergies,
-  useConvertMutation: () => {
-     
-    const trpc = useTRPC();
-
-     
-    return useMutation(trpc.recipes.convertMeasurements.mutationOptions());
-  },
+  useConvertMutation,
   useRatingQuery,
   useRatingsMutation,
   useFavoriteIds: () => {
-     
     const { favoriteIds } = useRecipesContext();
 
     return favoriteIds;

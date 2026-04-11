@@ -10,7 +10,6 @@ export type { PermissionsContextValue } from "@norish/shared-react/contexts";
 
 const { PermissionsProvider, usePermissionsContext } = createPermissionsContext({
   useCurrentUserId: () => {
-     
     const { user } = useUserContext();
 
     return user?.id;
