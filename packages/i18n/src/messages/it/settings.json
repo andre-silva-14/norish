@@ -550,6 +550,7 @@
       "temperature": "Temperatura: {value}",
       "temperatureHint": "Più bassa = più focalizzata, Più alta = più creativa",
       "maxTokens": "Token massimi",
+      "requestTimeout": "Timeout richiesta (ms)",
       "autoTagAllergies": "Rileva automaticamente tag allergie",
       "autoTagAllergiesDescription": "Aggiungi automaticamente tag relativi alle allergie durante l'importazione delle ricette",
       "alwaysUseAI": "Usa sempre importazione IA",
